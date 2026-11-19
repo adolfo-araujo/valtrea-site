@@ -1,0 +1,500 @@
+---
+import BrandIcon from "../components/site/BrandIcon.astro";
+import Icon from "../components/site/Icon.astro";
+import { company, socialUrl } from "../config/company";
+import { liveProducts } from "../config/showcase";
+import Layout from "../layouts/Layout.astro";
+
+const accents: Record<string, string> = { finance: "#4ade80", agora: "#facc15", volta: "#60a5fa", pulso: "#c084fc" };
+const subtitles: Record<string, string> = {
+  finance: "Seu dinheiro organizado, de graça",
+  agora: "Horário vago no salão, hoje",
+  volta: "Achou? O dono fica sabendo",
+  pulso: "Melhorias para o seu bairro",
+};
+const cards = liveProducts.map((product) => ({
+  id: product.id,
+  title: product.name,
+  short: product.name.replace("Valtrea ", ""),
+  sub: subtitles[product.id] ?? product.pt,
+  href: product.href,
+  accent: accents[product.id] ?? "#ffffff",
+  icon: product.icon,
+}));
+interface LinkItem {
+  label: string;
+  sub: string;
+  href: string;
+  icon: string;
+  brand?: boolean;
+  external?: boolean;
+}
+const groups: { title: string; items: LinkItem[] }[] = [
+  {
+    title: "Site Valtrea",
+    items: [
+      { label: "Site da Valtrea", sub: "Sites, sistemas e aplicativos sob medida", href: "/", icon: "globe" },
+      { label: "Projetos", sub: "O que já saiu do papel", href: "/projetos", icon: "grid" },
+      { label: "Produtos", sub: "Os apps grátis da Valtrea", href: "/produtos", icon: "box" },
+      { label: "Fundador", sub: "Quem está por trás da Valtrea", href: "/fundador", icon: "user" },
+      { label: "Valtrea Business", sub: "Programa para quem quer empreender", href: "/business", icon: "rocket" },
+      { label: "Cartão digital", sub: "Contato da Valtrea em um toque", href: "/cartao", icon: "phone" },
+      { label: "Apoie com um café", sub: "Ajude a manter os apps grátis", href: "/cafe", icon: "gift" },
+      { label: "Painel de estatísticas", sub: "Visitas do seu site, sem cookies", href: "/painel", icon: "layout" },
+      { label: "Contato", sub: "Peça um orçamento", href: "/contato", icon: "mail" },
+    ],
+  },
+  {
+    title: "Demonstrações",
+    items: [
+      { label: "Recanto", sub: "Proposta de site para pousada", href: "/demo/proposta", icon: "home" },
+      { label: "Caixote", sub: "Loja de achadinhos", href: "/demo/achados", icon: "box" },
+      { label: "Passada", sub: "Loja de corrida", href: "/demo/corrida", icon: "run" },
+      { label: "Patota Pet", sub: "Pet shop com banho e tosa", href: "/demo/pet", icon: "paw" },
+      { label: "Fornalha", sub: "Cardápio digital com pedido", href: "/demo/cardapio", icon: "burger" },
+    ],
+  },
+  {
+    title: "Redes e contato",
+    items: [
+      { label: "TikTok", sub: "Bastidores e dicas de graça", href: socialUrl("tiktok"), icon: "tiktok", brand: true, external: true },
+      { label: "Instagram", sub: "Siga a gente nas outras redes", href: socialUrl("instagram"), icon: "instagram", brand: true, external: true },
+      { label: "E-mail", sub: company.email, href: `mailto:${company.email}`, icon: "mail", external: true },
+    ].filter((item) => item.href),
+  },
+];
+const total = cards.length + groups.reduce((sum, group) => sum + group.items.length, 0);
+const ticker = "NOVIDADES TODA SEMANA • FALE COM A GENTE • LINKS ABAIXO • ";
+const initials = company.person.fullName
+  .split(" ")
+  .map((part) => part.charAt(0))
+  .join("")
+  .toLowerCase();
+const fonts = "https://fonts.googleapis.com/css2?family=Unbounded:wght@800&display=swap";
+---
+
+<Layout locale="pt" path="/links" title="Valtrea · links" description="Todos os links da Valtrea em um lugar." themeColor="#050507" bodyClass="linkpage">
+  <link slot="head" rel="stylesheet" href={fonts} />
+  <a class="sr-only" href="#index">Pular para os links</a>
+  <main id="main" class="l-page">
+    <header class="l-top">
+      <span>@{company.handle}</span>
+      <span>{company.country}</span>
+    </header>
+
+    <h1 class="l-title">VALTREA</h1>
+    <p class="l-count">{total} LINKS ↓</p>
+
+    <section class="l-intro">
+      <div class="l-echo" aria-hidden="true">
+        <span>VALTREA</span><span>VALTREA</span><span>VALTREA</span><span>VALTREA</span>
+      </div>
+      <p class="l-bio">Meu nome é {company.person.name}, fundei a Valtrea e construo sites, sistemas e aplicativos do zero, da primeira conversa ao lançamento.</p>
+      <div class="l-avatar">
+        {company.person.photo ? <img src={company.person.photo} alt={`Foto de ${company.person.fullName}`} /> : <span class="l-initials" aria-hidden="true">{initials}</span>}
+        <svg class="l-badge" viewBox="0 0 100 100" aria-hidden="true">
+          <defs><path id="badge-ring" d="M50 50m-36 0a36 36 0 1 1 72 0a36 36 0 1 1-72 0"></path></defs>
+          <circle cx="50" cy="50" r="48"></circle>
+          <text><textPath href="#badge-ring">ROLE PARA OS LINKS • ROLE PARA OS LINKS •</textPath></text>
+        </svg>
+      </div>
+    </section>
+
+    <div class="l-ticker" aria-hidden="true">
+      <div class="l-ticker-track"><span>{ticker.repeat(4)}</span><span>{ticker.repeat(4)}</span></div>
+    </div>
+
+    <ul class="l-list" id="index">
+      {
+        cards.map((card) => (
+          <li>
+            <a class="l-card" href={card.href} target="_blank" rel="noopener" style={`--c: ${card.accent}`}>
+              <span class="l-cover" aria-hidden="true">
+                <Icon name={card.icon} size={18} stroke={1.8} />
+                <b>{card.short}</b>
+                <i />
+              </span>
+              <span class="l-text">
+                <strong>{card.title}</strong>
+                <small>{card.sub}</small>
+              </span>
+              <Icon name="arrow" size={20} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      groups.map((group) => (
+        <section class="l-group" aria-label={group.title}>
+          <h2>{group.title}</h2>
+          <ul class="l-list l-list--plain">
+            {group.items.map((item) => (
+              <li>
+                <a class="l-plain" href={item.href} {...(item.external ? { target: "_blank", rel: "noopener" } : {})}>
+                  <span class="l-icon">{item.brand ? <BrandIcon name={item.icon} size={18} /> : <Icon name={item.icon} size={18} stroke={1.8} />}</span>
+                  <span class="l-text">
+                    <strong>{item.label}</strong>
+                    <small>{item.sub}</small>
+                  </span>
+                  <Icon name="arrow" size={20} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <button type="button" class="l-share" data-share data-url={`${company.site}/links`} data-title="Valtrea · links" data-copied="Link copiado ✓">
+      <span data-share-label>Compartilhar esta página →</span>
+    </button>
+    <footer class="l-foot">@{company.handle}<span class="l-legal"><a href="/privacidade">Privacidade</a> · <a href="/termos">Termos</a></span></footer>
+  </main>
+  <script>
+    import "../scripts/pages";
+  </script>
+</Layout>
+
+<style is:global>
+  body.linkpage {
+    min-height: 100vh;
+    background-color: #050507;
+    background-image:
+      radial-gradient(ellipse at 15% 0%, rgba(37, 99, 235, 0.22), transparent 55%),
+      radial-gradient(ellipse at 90% 60%, rgba(14, 116, 144, 0.12), transparent 50%),
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size:
+      auto,
+      auto,
+      44px 44px,
+      44px 44px;
+    color: #fff;
+  }
+</style>
+
+<style>
+  .l-page {
+    width: min(100% - 2.5rem, 39rem);
+    margin: 0 auto;
+    padding: 1.6rem 0 3rem;
+  }
+
+  .l-top {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .l-title {
+    margin: 2rem 0 0;
+    color: #fff;
+    font-family: "Unbounded", var(--font-display);
+    font-size: clamp(2.6rem, 13vw, 4.6rem);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .l-count {
+    margin: 1.4rem 0 0;
+    color: #3b82f6;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+
+  .l-intro {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    padding: 1.5rem 0 2rem;
+  }
+
+  .l-echo {
+    position: absolute;
+    right: -1rem;
+    top: 0.5rem;
+    display: grid;
+    gap: 0;
+    font-family: "Unbounded", var(--font-display);
+    font-size: clamp(2rem, 9vw, 3.4rem);
+    font-weight: 800;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .l-bio {
+    position: relative;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .l-avatar {
+    position: relative;
+    width: clamp(8rem, 30vw, 10.5rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    padding: 3px;
+    background: linear-gradient(135deg, #22d3ee, #3b82f6);
+  }
+
+  .l-avatar img,
+  .l-initials {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: radial-gradient(circle at 35% 25%, #9ca3af, #2b2f36 75%);
+    color: #fff;
+    font-size: clamp(2.6rem, 9vw, 3.6rem);
+    font-weight: 500;
+  }
+
+  .l-badge {
+    position: absolute;
+    right: -0.6rem;
+    bottom: -0.4rem;
+    width: 42%;
+    animation: l-spin 12s linear infinite;
+  }
+
+  .l-badge circle {
+    fill: #2563eb;
+  }
+
+  .l-badge text {
+    fill: #0b1020;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+  }
+
+  @keyframes l-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .l-ticker {
+    margin: 0 -0.75rem 1.8rem;
+    padding: 0.55rem 0;
+    overflow: hidden;
+    background: linear-gradient(90deg, #2563eb, #22d3ee);
+    color: #050507;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .l-ticker-track {
+    display: flex;
+    width: max-content;
+    animation: l-marquee 26s linear infinite;
+  }
+
+  .l-ticker-track span {
+    white-space: pre;
+  }
+
+  @keyframes l-marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .l-list {
+    display: grid;
+    gap: 0.9rem;
+    margin: 0;
+    padding: 1.8rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    list-style: none;
+  }
+
+  .l-card,
+  .l-plain {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    color: #fff;
+    text-decoration: none;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+
+  .l-card {
+    padding: 1.1rem 1.3rem 1.1rem 1.1rem;
+    border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+    border-radius: 22px;
+    background: linear-gradient(120deg, color-mix(in srgb, var(--c) 16%, #0b0d12), #0b0d12 70%);
+    box-shadow: 0 0 34px -14px color-mix(in srgb, var(--c) 70%, transparent);
+  }
+
+  .l-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 44px -10px color-mix(in srgb, var(--c) 80%, transparent);
+  }
+
+  .l-card > :global(svg:last-child) {
+    flex: none;
+    color: var(--c);
+  }
+
+  .l-cover {
+    position: relative;
+    display: grid;
+    align-content: space-between;
+    flex: none;
+    width: 3.4rem;
+    height: 4.6rem;
+    padding: 0.45rem 0.4rem;
+    overflow: hidden;
+    border-radius: 6px;
+    background: linear-gradient(160deg, color-mix(in srgb, var(--c) 85%, #fff), color-mix(in srgb, var(--c) 55%, #000));
+    color: #07090d;
+    box-shadow: 2px 3px 0 rgba(0, 0, 0, 0.45);
+  }
+
+  .l-cover b {
+    font-size: 0.62rem;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+  }
+
+  .l-cover i {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: rgba(0, 0, 0, 0.25);
+  }
+
+  .l-text {
+    display: grid;
+    flex: 1;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .l-text strong {
+    font-size: clamp(1.15rem, 4.4vw, 1.45rem);
+    line-height: 1.15;
+  }
+
+  .l-text small {
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.88rem;
+  }
+
+  .l-plain {
+    padding: 0.8rem 0.4rem;
+  }
+
+  .l-plain:hover {
+    transform: translateX(3px);
+  }
+
+  .l-group {
+    margin-top: 2.2rem;
+  }
+
+  .l-group h2 {
+    margin: 0 0 0.4rem;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .l-list--plain {
+    gap: 0.2rem;
+    padding-top: 0.6rem;
+  }
+
+  .l-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .l-share {
+    display: block;
+    margin: 2.4rem auto 0;
+    padding: 0.4rem 0;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+    background: none;
+    color: #fff;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .l-share:hover {
+    color: #60a5fa;
+    border-color: #60a5fa;
+  }
+
+  .l-legal {
+    display: block;
+    margin-top: 0.4rem;
+    font-size: 0.78rem;
+  }
+
+  .l-legal a {
+    color: rgba(255, 255, 255, 0.72);
+    text-underline-offset: 0.15em;
+  }
+
+  .l-foot {
+    margin-top: 1.4rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    .l-intro {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .l-avatar {
+      order: -1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .l-badge,
+    .l-ticker-track {
+      animation: none;
+    }
+  }
+</style>

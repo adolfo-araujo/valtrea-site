@@ -1,0 +1,32 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "valtrea-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    { "pattern": "www.valtrea.com.br/api/*", "zone_name": "valtrea.com.br" },
+    { "pattern": "novo.valtrea.com.br/api/*", "zone_name": "valtrea.com.br" },
+  ],
+  "observability": { "enabled": true },
+  "vars": {
+    "CF_ACCOUNT_ID": "a4b2a5da9677420fb3db93577c19ab38",
+    "DEMO_DOMAIN": "valtrea.com.br",
+    "EVENTS_DATASET": "valtrea_events",
+    "APP_ORIGIN": "https://www.valtrea.com.br",
+    "GITHUB_CLIENT_ID": "Ov23lit2QcDVYJAoIL2y",
+    "COFFEE_OFFER_ID": "3ajpb8s",
+    "CAKTO_CLIENT_ID": "gQWefpeelyWf3z3fd9z31QZRfwTsfYiNTVTq1dB4",
+  },
+  "ratelimits": [
+    { "name": "CHECKOUT_LIMIT", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "valtrea",
+      "database_id": "731a9f3b-e0d9-41ab-b6aa-863facffdcdc",
+      "migrations_dir": "../../packages/db/migrations",
+    },
+  ],
+}

@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+**/worker-configuration.d.ts
+**/migrations/**
+**/.wrangler/**
+**/dist/**
+ESCOPO.md
+**/.astro/**

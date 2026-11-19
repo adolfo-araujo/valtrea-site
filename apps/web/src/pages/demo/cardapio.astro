@@ -1,0 +1,1554 @@
+---
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import DemoFrame from "../../components/demo/DemoFrame.astro";
+
+const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+const photo = (name: string) => (existsSync(join(process.cwd(), "public", "demo", "cardapio", name)) ? `/demo/cardapio/${name}` : "");
+
+interface Item {
+  id: string;
+  name: string;
+  text: string;
+  price: number;
+  old?: number;
+  cat: string;
+  art: string;
+  badge?: string;
+  options?: string[];
+}
+
+const burger = ["ponto", "turbo", "molho"];
+const items: Item[] = [
+  { id: "classico", name: "Smash clássico", text: "Dois smash de 80 g, cheddar inglês, cebola na chapa e maionese da casa no brioche.", price: 29, cat: "burgers", art: "burger", options: burger },
+  { id: "bacon", name: "Bacon jam", text: "Smash duplo, geleia de bacon, cheddar, picles e barbecue defumado.", price: 34, cat: "burgers", art: "burger-bacon", options: burger },
+  { id: "trufado", name: "Trufado", text: "Blend de 160 g, queijo brie, cogumelos salteados e maionese trufada.", price: 38, cat: "burgers", art: "burger-brie", badge: "Novo", options: burger },
+  { id: "picante", name: "Chapa picante", text: "Smash duplo, pepper jack, jalapeño, cebola crispy e maionese de chipotle.", price: 33, cat: "burgers", art: "burger-hot", options: burger },
+  { id: "frango", name: "Crispy chicken", text: "Sobrecoxa empanada crocante, alface americana, picles e mostarda e mel.", price: 31, cat: "burgers", art: "burger-chicken", options: ["molho"] },
+  { id: "veg", name: "Smash da horta", text: "Burger de grão-de-bico e beterraba, queijo prato, tomate e aioli de ervas.", price: 30, cat: "burgers", art: "burger-veg", options: ["molho"] },
+  { id: "combo-classico", name: "Combo clássico", text: "Smash clássico, fritas da casa e bebida em lata.", price: 42, old: 49, cat: "combos", art: "combo", options: ["ponto", "lata"] },
+  { id: "combo-dupla", name: "Combo dupla", text: "Dois smash clássicos, fritas grandes, onion rings e duas bebidas.", price: 79, old: 92, cat: "combos", art: "combo", options: ["ponto", "lata"] },
+  { id: "fritas", name: "Fritas da casa", text: "Batata rústica com casca, alecrim e sal defumado.", price: 16, cat: "lados", art: "fries" },
+  { id: "fritas-cheddar", name: "Fritas cheddar e bacon", text: "Fritas da casa cobertas de cheddar cremoso e farofa de bacon.", price: 24, cat: "lados", art: "fries-cheddar" },
+  { id: "onion", name: "Onion rings", text: "Anéis de cebola empanados na cerveja, com barbecue.", price: 19, cat: "lados", art: "rings" },
+  { id: "lata", name: "Refrigerante lata", text: "350 ml, gelado. Cola, guaraná ou limão.", price: 7, cat: "bebidas", art: "can", options: ["lata"] },
+  { id: "limonada", name: "Limonada da casa", text: "Limão, hortelã e gengibre. 500 ml.", price: 11, cat: "bebidas", art: "lemonade" },
+  { id: "shake", name: "Milkshake maltado", text: "Sorvete de baunilha batido com chocolate maltado crocante. 400 ml.", price: 22, cat: "bebidas", art: "shake" },
+  { id: "brownie", name: "Brownie na chapa", text: "Brownie quente com bola de sorvete e calda de doce de leite.", price: 18, cat: "doces", art: "brownie" },
+  { id: "cookie", name: "Cookie gigante", text: "Massa amanteigada com gotas de chocolate meio amargo.", price: 12, cat: "doces", art: "cookie" },
+];
+const categories = [
+  { id: "burgers", label: "Burgers" },
+  { id: "combos", label: "Combos" },
+  { id: "lados", label: "Acompanhamentos" },
+  { id: "bebidas", label: "Bebidas" },
+  { id: "doces", label: "Sobremesas" },
+];
+const top = ["classico", "bacon", "combo-classico", "shake"].map((id) => items.find((item) => item.id === id)).filter((item): item is Item => Boolean(item));
+const discount = (item: Item) => (item.old ? `-${Math.round((1 - item.price / item.old) * 100)}%` : "");
+const areas = [
+  { name: "Pinheiros", fee: 5 },
+  { name: "Vila Madalena", fee: 6 },
+  { name: "Jardins", fee: 8 },
+  { name: "Butantã", fee: 9 },
+  { name: "Perdizes", fee: 9 },
+  { name: "Lapa", fee: 11 },
+];
+const hours = [
+  ["Segunda", "fechado"],
+  ["Terça", "18:00 – 23:00"],
+  ["Quarta", "18:00 – 23:00"],
+  ["Quinta", "18:00 – 23:00"],
+  ["Sexta", "18:00 – 00:30"],
+  ["Sábado", "18:00 – 00:30"],
+  ["Domingo", "18:00 – 23:30"],
+];
+const store = {
+  products: items.map(({ id, name, price, options }) => ({ id, name, price, ...(options ? { options } : {}) })),
+  groups: [
+    { id: "ponto", label: "Ponto da carne", type: "single" as const, required: true, choices: [{ label: "Ao ponto" }, { label: "Bem passado" }] },
+    {
+      id: "turbo",
+      label: "Turbine o burger",
+      type: "multi" as const,
+      choices: [
+        { label: "Carne smash extra", price: 9 },
+        { label: "Bacon crocante", price: 6 },
+        { label: "Cheddar extra", price: 4 },
+        { label: "Cebola caramelizada", price: 4 },
+        { label: "Ovo na chapa", price: 3 },
+        { label: "Picles da casa", price: 2 },
+      ],
+    },
+    {
+      id: "molho",
+      label: "Molho extra",
+      type: "multi" as const,
+      choices: [
+        { label: "Maionese da casa", price: 3 },
+        { label: "Barbecue defumado", price: 3 },
+        { label: "Mostarda e mel", price: 3 },
+      ],
+    },
+    { id: "lata", label: "Sabor da lata", type: "single" as const, required: true, choices: [{ label: "Cola" }, { label: "Guaraná" }, { label: "Limão" }] },
+  ],
+  modes: ["entrega", "retirada"] as ("entrega" | "retirada")[],
+  areas,
+  minDelivery: 30,
+  payments: ["Pix", "Cartão na entrega", "Dinheiro"],
+  pickupAddress: "Rua dos Pinheiros, 777 · Pinheiros (fictício)",
+};
+const hero = photo("hero.jpg");
+---
+
+<DemoFrame
+  brand="Fornalha Burger"
+  title="Fornalha · smash burger (demonstração)"
+  description="Cardápio de demonstração feito pela Valtrea: monte o pedido, escolha entrega ou retirada e envie pelo WhatsApp."
+  path="/demo/cardapio"
+  themeColor="#ECEBE8"
+  bodyClass="cardapio"
+  store={store}
+>
+  <header class="c-nav" data-c-nav>
+    <div class="c-nav-inner">
+      <a class="c-logo" href="#topo" aria-label="Fornalha, início"><span class="c-logo-ring" aria-hidden="true"></span>Fornalha</a>
+      <nav class="c-links" aria-label="Seções">
+        <a href="#cardapio">Cardápio</a>
+        <a href="#como">Como pedir</a>
+        <a href="#info">Horário e entrega</a>
+      </nav>
+      <button class="c-bag" type="button" data-bag-open>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8Z"></path><path d="M9 8V6a3 3 0 0 1 6 0v2"></path></svg>
+        <span>Sacola</span>
+        <b data-bag-count hidden>0</b>
+      </button>
+    </div>
+  </header>
+
+  <section class="c-hero" id="topo" aria-labelledby="c-hero-title">
+    <div class="c-hero-card" data-c-hero>
+      <div class="c-grooves" aria-hidden="true"></div>
+      <div class="c-hero-text">
+        <p class="c-status" data-c-status><span class="c-status-dot"></span><span data-c-status-text>Verificando horário…</span></p>
+        <h1 id="c-hero-title" class="c-hero-title" data-c-title>
+          <span class="c-line"><span>Smash que</span></span>
+          <span class="c-line"><span>estala<em>.</em></span></span>
+        </h1>
+        <p class="c-hero-sub">Carne prensada na chapa quente, borda crocante e cheddar escorrendo. Monte o seu pedido aqui e ele chega pronto no WhatsApp.</p>
+        <div class="c-hero-ctas">
+          <a class="c-btn c-btn--dark" href="#cardapio">Ver cardápio</a>
+          <span class="c-hero-note">Entrega em <b>35–50 min</b></span>
+        </div>
+      </div>
+      <div class="c-disc-wrap" aria-hidden="true">
+        <div class="c-disc" data-c-disc>
+          <div class="c-plate">
+            {
+              hero ? (
+                <img src={hero} alt="" />
+              ) : (
+                <svg viewBox="0 0 400 400"><use href="#plate" /></svg>
+              )
+            }
+          </div>
+          <span class="c-plate-edge"></span>
+        </div>
+      </div>
+      <p class="c-hero-title c-hero-title--light" aria-hidden="true" data-c-title-light>
+        <span class="c-line"><span>Smash que</span></span>
+        <span class="c-line"><span>estala<em>.</em></span></span>
+      </p>
+    </div>
+  </section>
+
+  <section class="c-section" aria-labelledby="c-top-title">
+    <div class="c-wrap">
+      <div class="c-head reveal">
+        <h2 id="c-top-title" class="c-title">Os mais pedidos<em>.</em></h2>
+        <p class="c-lead">O que mais sai da chapa nas noites de sexta.</p>
+      </div>
+      <div class="c-top">
+        {
+          top.map((item, index) => (
+            <article class="c-top-card reveal">
+              <button class="c-top-photo" type="button" data-add={item.id} aria-label={`Montar ${item.name}`}>
+                <span class="c-photo">
+                  {photo(`${item.id}.jpg`) ? <img src={photo(`${item.id}.jpg`)} alt={item.name} loading="lazy" /> : <svg viewBox="0 0 200 200" aria-hidden="true"><use href={`#food-${item.art}`} /></svg>}
+                </span>
+                {item.old && <span class="c-badge">{discount(item)}</span>}
+                <span class="c-rank">{index + 1}</span>
+              </button>
+              <div class="c-top-info">
+                <h3>{item.name}</h3>
+                <span class="c-price">{item.old && <del>{money(item.old)}</del>}{money(item.price)}</span>
+                <button class="c-add" type="button" data-add={item.id} aria-label={`Adicionar ${item.name}`}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                </button>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="c-section c-menu" id="cardapio" aria-labelledby="c-menu-title">
+    <div class="c-wrap">
+      <div class="c-head reveal">
+        <h2 id="c-menu-title" class="c-title">Cardápio<em>.</em></h2>
+        <p class="c-lead">Toque no item para escolher o ponto, os adicionais e deixar uma observação.</p>
+      </div>
+    </div>
+    <div class="c-tabs-wrap" data-c-tabs-wrap>
+      <div class="c-wrap">
+        <nav class="c-tabs" aria-label="Categorias do cardápio" data-c-tabs>
+          <span class="c-tabs-pill" data-c-pill></span>
+          {categories.map((category, index) => <a href={`#cat-${category.id}`} data-c-tab={category.id} aria-current={index === 0 ? "true" : "false"}>{category.label}</a>)}
+        </nav>
+      </div>
+    </div>
+    <div class="c-wrap">
+      {
+        categories.map((category) => {
+          const list = items.filter((item) => item.cat === category.id);
+          return (
+            <section class="c-cat" id={`cat-${category.id}`} data-c-cat={category.id} aria-labelledby={`t-${category.id}`}>
+              <h3 class="c-cat-title" id={`t-${category.id}`}>
+                {category.label} <small>{list.length} itens</small>
+              </h3>
+              <ul class="c-items">
+                {list.map((item) => (
+                  <li class="c-item reveal">
+                    <div class="c-item-text">
+                      <h4><button type="button" data-add={item.id}>{item.name}</button></h4>
+                      <p>{item.text}</p>
+                      <span class="c-price">{item.old && <del>{money(item.old)}</del>}{money(item.price)}</span>
+                    </div>
+                    <div class="c-item-photo">
+                      <span class="c-photo">
+                        {photo(`${item.id}.jpg`) ? <img src={photo(`${item.id}.jpg`)} alt={item.name} loading="lazy" /> : <svg viewBox="0 0 200 200" aria-hidden="true"><use href={`#food-${item.art}`} /></svg>}
+                      </span>
+                      {item.old && <span class="c-badge">{discount(item)}</span>}
+                      {item.badge && <span class="c-badge c-badge--hot">{item.badge}</span>}
+                      <span class="c-add" aria-hidden="true">
+                        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section class="c-section c-steps" id="como" aria-labelledby="c-steps-title">
+    <div class="c-wrap">
+      <div class="c-head reveal">
+        <h2 id="c-steps-title" class="c-title">Três toques e tá na chapa<em>.</em></h2>
+      </div>
+      <div class="c-steps-box">
+        <svg class="c-thread" viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true" data-c-thread><path d="M20 120 C 200 10, 320 150, 500 80 S 820 20, 980 110"></path></svg>
+        <ol class="c-steps-list">
+          <li class="reveal"><span>1</span><h3>Monte</h3><p>Escolha os itens, o ponto da carne e os adicionais.</p></li>
+          <li class="reveal"><span>2</span><h3>Confira</h3><p>Entrega ou retirada, bairro e forma de pagamento. O total já vem com a taxa.</p></li>
+          <li class="reveal"><span>3</span><h3>Envie</h3><p>O pedido aparece pronto para mandar no WhatsApp e a casa confirma em minutos.</p></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="c-section c-info" id="info" aria-labelledby="c-info-title">
+    <div class="c-wrap c-info-grid">
+      <div class="reveal">
+        <h2 id="c-info-title" class="c-title">Horário e entrega<em>.</em></h2>
+        <p class="c-lead c-lead--gap"><b>Rua dos Pinheiros, 777 · Pinheiros</b> (endereço fictício). Retirada no balcão em 20 min. Pedido mínimo para entrega de {money(30)}.</p>
+        <button class="c-btn c-btn--dark" type="button" data-bag-open>Montar meu pedido</button>
+      </div>
+      <div class="c-cards">
+        <div class="c-card reveal">
+          <h3>Funcionamento</h3>
+          <ul class="c-rows">{hours.map(([day, time]) => <li data-c-day={day}><span>{day}</span><span>{time}</span></li>)}</ul>
+        </div>
+        <div class="c-card reveal">
+          <h3>Taxa por bairro</h3>
+          <ul class="c-rows">{areas.map((area) => <li><span>{area.name}</span><span>{money(area.fee)}</span></li>)}</ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <svg width="0" height="0" class="c-defs" aria-hidden="true">
+    <defs>
+      <radialGradient id="f-bun" cx="0.45" cy="0.3" r="0.8">
+        <stop offset="0" stop-color="#f3b35e" />
+        <stop offset="0.6" stop-color="#d98a3a" />
+        <stop offset="1" stop-color="#a95d1e" />
+      </radialGradient>
+      <linearGradient id="f-meat" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6a3519" />
+        <stop offset="1" stop-color="#3b1c0b" />
+      </linearGradient>
+      <linearGradient id="f-cheese" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffd24a" />
+        <stop offset="1" stop-color="#f2a915" />
+      </linearGradient>
+      <linearGradient id="f-fry" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#f6c656" />
+        <stop offset="1" stop-color="#e2a43a" />
+      </linearGradient>
+      <radialGradient id="f-bg" cx="0.5" cy="0.4" r="0.75">
+        <stop offset="0" stop-color="#fbfaf7" />
+        <stop offset="1" stop-color="#e6e4df" />
+      </radialGradient>
+      <radialGradient id="f-shadow" cx="0.5" cy="0.5" r="0.5">
+        <stop offset="0" stop-color="#000" stop-opacity="0.28" />
+        <stop offset="1" stop-color="#000" stop-opacity="0" />
+      </radialGradient>
+
+      <symbol id="food-burger-base" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="166" rx="74" ry="10" fill="url(#f-shadow)" />
+        <path d="M34 140c0 14 14 22 66 22s66-8 66-22c0-6-8-8-66-8s-66 2-66 8Z" fill="url(#f-bun)" />
+        <path d="M30 124c4-6 16-8 70-8s66 2 70 8c4 6-6 12-70 12s-74-6-70-12Z" fill="url(#f-meat)" />
+        <path d="M30 104c4-6 16-8 70-8s66 2 70 8c4 6-6 12-70 12s-74-6-70-12Z" fill="url(#f-meat)" />
+        <path d="M38 98l124 0-6 14-10-6-12 12-10-8-12 10-14-10-12 10-12-9-12 10-12-8-10 6Z" fill="url(#f-cheese)" />
+        <path d="M34 92c0-40 30-58 66-58s66 18 66 58Z" fill="url(#f-bun)" />
+        <g fill="#fff3d6">
+          <ellipse cx="80" cy="56" rx="4" ry="2" transform="rotate(-20 80 56)" />
+          <ellipse cx="100" cy="48" rx="4" ry="2" />
+          <ellipse cx="122" cy="58" rx="4" ry="2" transform="rotate(20 122 58)" />
+          <ellipse cx="94" cy="68" rx="4" ry="2" transform="rotate(10 94 68)" />
+          <ellipse cx="140" cy="72" rx="4" ry="2" transform="rotate(30 140 72)" />
+          <ellipse cx="62" cy="74" rx="4" ry="2" transform="rotate(-30 62 74)" />
+        </g>
+        <path d="M60 50c14-10 40-12 56-6" stroke="#fff" stroke-opacity="0.35" stroke-width="5" fill="none" stroke-linecap="round" />
+      </symbol>
+      <symbol id="food-burger" viewBox="0 0 200 200"><use href="#food-burger-base" /></symbol>
+      <symbol id="food-burger-bacon" viewBox="0 0 200 200">
+        <use href="#food-burger-base" />
+        <path d="M32 120c20-8 40 6 60-2s40 6 76-2l2 8c-30 8-48-6-74 2s-44-6-64 2Z" fill="#b2391f" />
+      </symbol>
+      <symbol id="food-burger-brie" viewBox="0 0 200 200">
+        <use href="#food-burger-base" />
+        <path d="M40 100h120l-8 10H48Z" fill="#fbf3dc" />
+        <circle cx="70" cy="114" r="6" fill="#8a6a4a" />
+        <circle cx="122" cy="114" r="6" fill="#8a6a4a" />
+      </symbol>
+      <symbol id="food-burger-hot" viewBox="0 0 200 200">
+        <use href="#food-burger-base" />
+        <g fill="#3f9b3a"><circle cx="64" cy="114" r="6" /><circle cx="100" cy="116" r="6" /><circle cx="136" cy="114" r="6" /></g>
+        <path d="M150 40c10-8 20 0 14 10" stroke="#d62a14" stroke-width="5" fill="none" stroke-linecap="round" />
+      </symbol>
+      <symbol id="food-burger-chicken" viewBox="0 0 200 200">
+        <use href="#food-burger-base" />
+        <path d="M28 104c6-10 30-12 72-12s66 4 72 12c4 8-6 22-72 22s-76-12-72-22Z" fill="#d79a3b" />
+        <path d="M40 98c40 10 80 10 120 0" stroke="#7fbf3f" stroke-width="7" fill="none" />
+      </symbol>
+      <symbol id="food-burger-veg" viewBox="0 0 200 200">
+        <use href="#food-burger-base" />
+        <path d="M30 104c4-6 16-8 70-8s66 2 70 8c4 6-6 12-70 12s-74-6-70-12Z" fill="#8a2f4a" />
+        <path d="M40 96h120" stroke="#e8432e" stroke-width="7" />
+      </symbol>
+      <symbol id="food-fries-art" viewBox="0 0 200 200">
+        <g fill="url(#f-fry)" stroke="#c98a24" stroke-width="1">
+          <rect x="70" y="50" width="12" height="70" rx="3" transform="rotate(-10 76 85)" />
+          <rect x="88" y="40" width="12" height="80" rx="3" />
+          <rect x="104" y="46" width="12" height="74" rx="3" transform="rotate(8 110 83)" />
+          <rect x="120" y="56" width="12" height="64" rx="3" transform="rotate(16 126 88)" />
+          <rect x="78" y="60" width="12" height="60" rx="3" transform="rotate(4 84 90)" />
+        </g>
+        <path d="M60 100h80l-10 74H70Z" fill="#d62a14" />
+        <path d="M66 100h68" stroke="#fff" stroke-width="4" />
+        <circle cx="100" cy="138" r="14" fill="#ffd60a" />
+      </symbol>
+      <symbol id="food-fries" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="176" rx="50" ry="8" fill="url(#f-shadow)" />
+        <use href="#food-fries-art" />
+      </symbol>
+      <symbol id="food-fries-cheddar" viewBox="0 0 200 200">
+        <use href="#food-fries" />
+        <path d="M66 70c10-12 24 6 34-6s24 8 36-4c4 14-6 26-34 28s-40-6-36-18Z" fill="url(#f-cheese)" />
+        <g fill="#8c2e16"><circle cx="86" cy="76" r="3" /><circle cx="108" cy="70" r="3" /><circle cx="122" cy="80" r="3" /></g>
+      </symbol>
+      <symbol id="food-rings" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="160" rx="70" ry="10" fill="url(#f-shadow)" />
+        <g fill="none" stroke="url(#f-fry)" stroke-width="16">
+          <ellipse cx="78" cy="118" rx="34" ry="22" />
+          <ellipse cx="124" cy="108" rx="34" ry="22" />
+          <ellipse cx="100" cy="86" rx="32" ry="20" />
+        </g>
+      </symbol>
+      <symbol id="food-can" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="172" rx="40" ry="7" fill="url(#f-shadow)" />
+        <rect x="70" y="44" width="60" height="128" rx="10" fill="#d62a14" />
+        <rect x="70" y="44" width="60" height="128" rx="10" fill="url(#f-can-shine)" />
+        <rect x="74" y="36" width="52" height="12" rx="4" fill="#c9cdd3" />
+        <path d="M76 110c12-10 36-10 48 0" stroke="#fff" stroke-width="5" fill="none" />
+        <linearGradient id="f-can-shine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#000" stop-opacity="0.2" />
+          <stop offset="0.35" stop-color="#fff" stop-opacity="0.35" />
+          <stop offset="0.6" stop-color="#fff" stop-opacity="0" />
+          <stop offset="1" stop-color="#000" stop-opacity="0.25" />
+        </linearGradient>
+      </symbol>
+      <symbol id="food-lemonade" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="172" rx="44" ry="7" fill="url(#f-shadow)" />
+        <path d="M64 50h72l-10 120H74Z" fill="#e8f7c9" opacity="0.9" />
+        <path d="M68 84h64l-7 84H75Z" fill="#d6ef8a" />
+        <circle cx="122" cy="54" r="16" fill="#ffe04a" stroke="#c9b20a" stroke-width="3" />
+        <path d="M84 30l14 60" stroke="#111" stroke-width="5" stroke-linecap="round" />
+        <g fill="#3f9b3a"><ellipse cx="90" cy="96" rx="8" ry="4" /><ellipse cx="108" cy="110" rx="8" ry="4" /></g>
+      </symbol>
+      <symbol id="food-shake" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="174" rx="40" ry="7" fill="url(#f-shadow)" />
+        <path d="M66 70h68l-10 102H76Z" fill="#f4e7d4" />
+        <path d="M70 100h60l-6 72H76Z" fill="#7a4a2b" opacity="0.85" />
+        <path d="M60 70c0-24 80-24 80 0Z" fill="#fff" />
+        <circle cx="104" cy="44" r="9" fill="#d62a14" />
+        <path d="M118 20l-8 50" stroke="#ffd60a" stroke-width="6" stroke-linecap="round" />
+      </symbol>
+      <symbol id="food-brownie" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="160" rx="70" ry="9" fill="url(#f-shadow)" />
+        <path d="M44 110l56-24 56 24-56 26Z" fill="#5a2e17" />
+        <path d="M44 110v24l56 26v-24ZM156 110v24l-56 26v-24Z" fill="#3a1c0c" />
+        <circle cx="104" cy="86" r="24" fill="#fff8e8" />
+        <path d="M82 92c10 12 34 12 44 0c0 10-6 26-22 26s-22-16-22-26Z" fill="#c98a3a" />
+      </symbol>
+      <symbol id="food-cookie" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="160" rx="66" ry="9" fill="url(#f-shadow)" />
+        <circle cx="100" cy="104" r="58" fill="#d9a35a" />
+        <circle cx="100" cy="104" r="58" fill="none" stroke="#b67d35" stroke-width="4" />
+        <g fill="#3a1c0c"><circle cx="76" cy="86" r="7" /><circle cx="116" cy="80" r="6" /><circle cx="128" cy="116" r="7" /><circle cx="88" cy="124" r="6" /><circle cx="104" cy="104" r="5" /></g>
+      </symbol>
+      <symbol id="food-combo" viewBox="0 0 200 200">
+        <rect width="200" height="200" fill="url(#f-bg)" />
+        <ellipse cx="100" cy="172" rx="82" ry="9" fill="url(#f-shadow)" />
+        <g transform="translate(-28 18) scale(0.8)"><use href="#food-burger-base" /></g>
+        <g transform="translate(78 30) scale(0.7)"><use href="#food-fries-art" /></g>
+      </symbol>
+
+      <symbol id="plate" viewBox="0 0 400 400">
+        <rect width="400" height="400" fill="#2b2622" />
+        <circle cx="200" cy="200" r="190" fill="#f4f1ec" />
+        <circle cx="200" cy="200" r="150" fill="#ebe6de" />
+        <ellipse cx="210" cy="214" rx="112" ry="104" fill="#000" opacity="0.15" />
+        <circle cx="200" cy="200" r="106" fill="url(#f-bun)" />
+        <g fill="#fff3d6">
+          {[[160, 160], [210, 140], [250, 180], [180, 210], [230, 230], [150, 240], [200, 260], [260, 230], [190, 180]].map(([x, y]) => <ellipse cx={x} cy={y} rx="7" ry="3.5" transform={`rotate(${((x ?? 0) * 7) % 180} ${x} ${y})`} />)}
+        </g>
+        <path d="M120 236c20 30 60 46 100 38" stroke="#ffd24a" stroke-width="14" fill="none" stroke-linecap="round" />
+        <path d="M140 150c30-24 70-26 100-10" stroke="#fff" stroke-opacity="0.3" stroke-width="10" fill="none" stroke-linecap="round" />
+        <g fill="url(#f-fry)" stroke="#c98a24">
+          <rect x="300" y="250" width="12" height="70" rx="3" transform="rotate(30 306 285)" />
+          <rect x="316" y="236" width="12" height="70" rx="3" transform="rotate(44 322 271)" />
+          <rect x="70" y="80" width="12" height="60" rx="3" transform="rotate(-36 76 110)" />
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+</DemoFrame>
+
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-c-nav]");
+  const ribbon = document.querySelector<HTMLElement>(".demo-ribbon");
+  const markNav = () => {
+    nav?.style.setProperty("--ribbon", `${Math.max(0, (ribbon?.offsetHeight ?? 0) - window.scrollY)}px`);
+    nav?.classList.toggle("is-scrolled", window.scrollY > 30);
+  };
+  window.addEventListener("scroll", markNav, { passive: true });
+  markNav();
+
+  const status = document.querySelector<HTMLElement>("[data-c-status]");
+  const statusText = document.querySelector<HTMLElement>("[data-c-status-text]");
+  const schedule: Record<number, [number, number] | null> = { 0: [18, 23.5], 1: null, 2: [18, 23], 3: [18, 23], 4: [18, 23], 5: [18, 24.5], 6: [18, 24.5] };
+  const names = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+  const pretty = (hour: number) => {
+    const wrapped = hour % 24;
+    return `${String(Math.floor(wrapped)).padStart(2, "0")}:${wrapped % 1 ? "30" : "00"}`;
+  };
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Sao_Paulo", weekday: "short", hour: "numeric", minute: "numeric", hourCycle: "h23" }).formatToParts(new Date());
+  const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(parts.find((part) => part.type === "weekday")?.value ?? "");
+  const now = Number(parts.find((part) => part.type === "hour")?.value ?? 0) + Number(parts.find((part) => part.type === "minute")?.value ?? 0) / 60;
+  const today = schedule[day] ?? null;
+  const yesterday = schedule[(day + 6) % 7] ?? null;
+  let open = false;
+  let closesAt = 0;
+  if (today && now >= today[0] && now < Math.min(24, today[1])) {
+    open = true;
+    closesAt = today[1];
+  } else if (yesterday && yesterday[1] > 24 && now < yesterday[1] - 24) {
+    open = true;
+    closesAt = yesterday[1];
+  }
+  if (status && statusText) {
+    status.classList.toggle("is-open", open);
+    if (open) statusText.textContent = `Aberto até ${pretty(closesAt)}`;
+    else if (today && now < today[0]) statusText.textContent = `Fechado · abre hoje às ${pretty(today[0])}`;
+    else {
+      let next = 1;
+      while (next < 7 && !schedule[(day + next) % 7]) next++;
+      const target = schedule[(day + next) % 7];
+      statusText.textContent = target ? `Fechado · abre ${next === 1 ? "amanhã" : names[(day + next) % 7]?.toLowerCase()} às ${pretty(target[0])}` : "Fechado";
+    }
+  }
+  document.querySelector(`[data-c-day="${names[day]}"]`)?.classList.add("is-today");
+
+  const hero = document.querySelector<HTMLElement>("[data-c-hero]");
+  const title = document.querySelector<HTMLElement>("[data-c-title]");
+  const light = document.querySelector<HTMLElement>("[data-c-title-light]");
+  const disc = document.querySelector<HTMLElement>("[data-c-disc]");
+  const placeLight = () => {
+    if (!hero || !title || !light || !disc) return;
+    const box = hero.getBoundingClientRect();
+    const words = title.getBoundingClientRect();
+    const round = disc.getBoundingClientRect();
+    light.style.left = `${words.left - box.left}px`;
+    light.style.top = `${words.top - box.top}px`;
+    light.style.width = `${words.width}px`;
+    const radius = round.width / 2;
+    light.style.clipPath = `circle(${radius}px at ${round.left - words.left + radius}px ${round.top - words.top + radius}px)`;
+  };
+  placeLight();
+  window.addEventListener("resize", placeLight);
+  void document.fonts.ready.then(placeLight);
+
+  const tabsWrap = document.querySelector<HTMLElement>("[data-c-tabs-wrap]");
+  const tabs = [...document.querySelectorAll<HTMLAnchorElement>("[data-c-tab]")];
+  const pill = document.querySelector<HTMLElement>("[data-c-pill]");
+  const movePill = (tab: HTMLElement) => {
+    if (!pill) return;
+    pill.style.width = `${tab.offsetWidth}px`;
+    pill.style.transform = `translateX(${tab.offsetLeft}px)`;
+  };
+  const setTab = (id: string) => {
+    tabs.forEach((tab) => {
+      const on = tab.dataset.cTab === id;
+      tab.setAttribute("aria-current", String(on));
+      if (on) {
+        movePill(tab);
+        tab.parentElement?.scrollTo({ left: tab.offsetLeft - 40, behavior: "smooth" });
+      }
+    });
+  };
+  const firstTab = tabs[0];
+  if (firstTab) movePill(firstTab);
+  void document.fonts.ready.then(() => {
+    const current = tabs.find((tab) => tab.getAttribute("aria-current") === "true");
+    if (current) movePill(current);
+  });
+  if ("IntersectionObserver" in window) {
+    const watcher = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setTab((entry.target as HTMLElement).dataset.cCat ?? "");
+        }
+      },
+      { rootMargin: "-35% 0px -60% 0px" },
+    );
+    document.querySelectorAll<HTMLElement>("[data-c-cat]").forEach((section) => watcher.observe(section));
+    if (tabsWrap) {
+      const stuck = new IntersectionObserver(([entry]) => tabsWrap.classList.toggle("is-stuck", !(entry?.isIntersecting ?? true)), { rootMargin: "-90px 0px 0px 0px", threshold: 1 });
+      const marker = document.createElement("span");
+      tabsWrap.before(marker);
+      stuck.observe(marker);
+    }
+  }
+
+  const thread = document.querySelector<SVGSVGElement>("[data-c-thread]");
+  if (thread && "IntersectionObserver" in window) {
+    const drawer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      thread.classList.add("is-drawn");
+      drawer.disconnect();
+    }, { threshold: 0.4 });
+    drawer.observe(thread);
+  }
+
+  const revealed = document.querySelectorAll<HTMLElement>(".reveal");
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-on");
+          observer.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "0px 0px -6% 0px", threshold: 0.1 },
+    );
+    revealed.forEach((element, index) => {
+      element.style.transitionDelay = `${(index % 4) * 0.07}s`;
+      observer.observe(element);
+    });
+  } else {
+    revealed.forEach((element) => element.classList.add("is-on"));
+  }
+</script>
+
+<style is:global>
+  body.cardapio {
+    --d-bg: #f6f5f2;
+    --d-surface: #ffffff;
+    --d-ink: #111111;
+    --d-mute: #5e5c58;
+    --d-line: rgba(17, 17, 17, 0.12);
+    --d-accent: #111111;
+    --d-accent-ink: #ffffff;
+    background: #f6f5f2;
+    color: #111111;
+    font-family: "Inter", var(--font-sans);
+  }
+</style>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;0,700;0,800;1,800;1,900&family=Inter:wght@400;500;600&family=Poppins:wght@500&display=swap");
+
+  .c-defs {
+    position: absolute;
+  }
+
+  .c-wrap {
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+
+  .c-nav {
+    position: fixed;
+    top: calc(var(--ribbon, 2rem) + 12px);
+    right: 0;
+    left: 0;
+    z-index: 40;
+    padding-inline: 12px;
+    pointer-events: none;
+    transition: top 0.2s;
+  }
+
+  .c-nav.is-scrolled {
+    top: 12px;
+  }
+
+  .c-nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    max-width: 1416px;
+    height: 60px;
+    margin-inline: auto;
+    padding: 0 0.6rem 0 1.4rem;
+    border-radius: 999px;
+    pointer-events: auto;
+    transition:
+      background-color 0.3s,
+      box-shadow 0.3s;
+  }
+
+  .c-nav.is-scrolled .c-nav-inner {
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow:
+      0 0 0 1px rgba(17, 17, 17, 0.08),
+      0 12px 30px -18px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+  }
+
+  .c-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #111;
+    font: italic 900 1.4rem/1 "Archivo", sans-serif;
+    letter-spacing: -0.03em;
+    text-decoration: none;
+  }
+
+  .c-logo-ring {
+    width: 1.3rem;
+    height: 1.3rem;
+    border: 4px solid #111;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffd60a 0 35%, transparent 36%);
+  }
+
+  .c-links {
+    display: flex;
+    gap: 1.4rem;
+    margin-left: auto;
+  }
+
+  .c-links a {
+    color: #5e5c58;
+    font-size: 0.92rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .c-links a:hover {
+    color: #111;
+  }
+
+  .c-bag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 46px;
+    padding: 0 0.6rem 0 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    font: 600 0.9rem/1 "Inter", sans-serif;
+    cursor: pointer;
+  }
+
+  .c-bag svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+  }
+
+  .c-bag b {
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: #ffd60a;
+    color: #111;
+    font: 500 0.78rem/1 "Poppins", sans-serif;
+  }
+
+  .c-hero {
+    padding: 12px;
+  }
+
+  .c-hero-card {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    max-width: 1416px;
+    min-height: min(calc(100svh - 24px), 900px);
+    margin-inline: auto;
+    overflow: clip;
+    border-radius: 28px;
+    background: #ecebe8;
+  }
+
+  .c-grooves {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: repeating-radial-gradient(circle at 76% 54%, transparent 0 44px, rgba(17, 17, 17, 0.075) 44px 45px);
+    mask: linear-gradient(90deg, #000 0 40%, rgba(0, 0, 0, 0.55) 70%);
+  }
+
+  .c-hero-text {
+    position: relative;
+    width: min(46%, 600px);
+    padding: 7rem 0 4rem clamp(1.5rem, 5.2vw, 5rem);
+  }
+
+  .c-status {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 1.4rem;
+    color: #5e5c58;
+    font: 500 0.82rem/1 "Poppins", sans-serif;
+    animation: c-in 0.7s var(--ease) 0.05s backwards;
+  }
+
+  .c-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #8d8a85;
+  }
+
+  .c-status.is-open .c-status-dot {
+    background: #ffd60a;
+    animation: c-pulse 2.2s infinite;
+  }
+
+  .c-hero-title {
+    position: relative;
+    z-index: 2;
+    width: max-content;
+    max-width: 100vw;
+    margin: 0;
+    color: #111;
+    font: italic 900 clamp(3.4rem, 8.4vw, 8.6rem)/0.9 "Archivo", sans-serif;
+    letter-spacing: -0.045em;
+  }
+
+  .c-line {
+    display: block;
+    padding: 0 0.06em 0.06em 0;
+    overflow: clip;
+  }
+
+  .c-line > span {
+    display: inline-block;
+  }
+
+  .c-hero-title em {
+    color: #ffd60a;
+    font-style: inherit;
+  }
+
+  .c-line:nth-child(1) > span {
+    animation: c-rise 0.9s var(--ease) 0.12s backwards;
+  }
+
+  .c-line:nth-child(2) > span {
+    animation: c-rise 0.9s var(--ease) 0.24s backwards;
+  }
+
+  .c-hero-title--light {
+    position: absolute;
+    z-index: 2;
+    color: #ffd60a;
+    pointer-events: none;
+  }
+
+  .c-hero-sub {
+    position: relative;
+    z-index: 2;
+    max-width: 34ch;
+    margin: 1.6rem 0 0;
+    color: #5e5c58;
+    font-size: clamp(1rem, 1.2vw, 1.1rem);
+    animation: c-in 0.7s var(--ease) 0.45s backwards;
+  }
+
+  .c-hero-ctas {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.2rem;
+    margin-top: 2rem;
+    animation: c-in 0.7s var(--ease) 0.58s backwards;
+  }
+
+  .c-hero-note {
+    color: #5e5c58;
+    font-size: 0.9rem;
+  }
+
+  .c-hero-note b {
+    color: #111;
+    font-weight: 600;
+  }
+
+  .c-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    min-height: 50px;
+    padding: 0 1.6rem;
+    border: 0;
+    border-radius: 999px;
+    font: 600 0.98rem/1 "Inter", sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      transform 0.35s var(--ease),
+      background-color 0.25s,
+      box-shadow 0.35s var(--ease);
+  }
+
+  .c-btn:active {
+    transform: scale(0.97);
+  }
+
+  .c-btn--dark {
+    background: #111;
+    color: #fff;
+  }
+
+  .c-btn--dark:hover {
+    background: #000;
+    box-shadow: 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+    transform: translateY(-2px);
+  }
+
+  .c-disc-wrap {
+    position: absolute;
+    top: 54%;
+    left: 76%;
+    z-index: 1;
+    width: min(122vh, 66vw, 1080px);
+    aspect-ratio: 1;
+    translate: -50% -50%;
+  }
+
+  .c-disc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: #0b0b0b;
+    box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.6);
+    animation: c-fade 1.3s var(--ease) 0.1s backwards;
+  }
+
+  .c-plate {
+    position: absolute;
+    inset: 13%;
+    overflow: hidden;
+    border-radius: 50%;
+    animation: c-spin 60s linear infinite;
+  }
+
+  .c-plate img,
+  .c-plate svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.12);
+  }
+
+  .c-plate-edge {
+    position: absolute;
+    inset: 12.5%;
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 60%, #0b0b0b 70.5%);
+    pointer-events: none;
+  }
+
+  .c-section {
+    padding: clamp(4rem, 9vw, 7rem) 0;
+  }
+
+  .c-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .c-title {
+    margin: 0;
+    font: italic 900 clamp(2.3rem, 5vw, 4rem)/0.95 "Archivo", sans-serif;
+    letter-spacing: -0.04em;
+  }
+
+  .c-title em {
+    color: #ffd60a;
+    font-style: inherit;
+  }
+
+  .c-lead {
+    max-width: 42ch;
+    margin: 0;
+    color: #5e5c58;
+  }
+
+  .c-lead b {
+    color: #111;
+    font-weight: 600;
+  }
+
+  .c-lead--gap {
+    margin: 1.2rem 0 1.8rem;
+  }
+
+  .c-top {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .c-top-card {
+    display: flex;
+    flex-direction: column;
+    overflow: clip;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.12);
+    transition:
+      transform 0.5s var(--ease),
+      box-shadow 0.5s var(--ease);
+  }
+
+  .c-top-card:hover {
+    box-shadow:
+      0 0 0 1px rgba(17, 17, 17, 0.12),
+      0 24px 40px -26px rgba(0, 0, 0, 0.4);
+    transform: translateY(-4px);
+  }
+
+  .c-top-photo {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  .c-photo {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: clip;
+    background: #ecebe8;
+  }
+
+  .c-photo svg,
+  .c-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s var(--ease);
+  }
+
+  .c-top-card:hover .c-photo svg,
+  .c-top-card:hover .c-photo img {
+    transform: scale(1.06) rotate(-1.5deg);
+  }
+
+  .c-rank {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.5rem;
+    z-index: 2;
+    color: #fff;
+    font: italic 900 3.4rem/1 "Archivo", sans-serif;
+    letter-spacing: -0.04em;
+    -webkit-text-stroke: 1.5px rgba(17, 17, 17, 0.18);
+  }
+
+  .c-badge {
+    position: absolute;
+    top: 0.7rem;
+    left: 0.7rem;
+    z-index: 2;
+    padding: 0.35rem 0.6rem;
+    border-radius: 999px;
+    background: #ffd60a;
+    color: #111;
+    font: 500 0.75rem/1 "Poppins", sans-serif;
+  }
+
+  .c-badge--hot {
+    background: #d9481f;
+    color: #fff;
+  }
+
+  .c-top-info {
+    display: grid;
+    flex: 1;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 0.3rem 1rem;
+    padding: 1rem 1.1rem 1.1rem;
+  }
+
+  .c-top-info h3 {
+    grid-column: 1;
+    margin: 0;
+    font: 800 1.12rem/1.15 "Archivo", sans-serif;
+  }
+
+  .c-top-info .c-add {
+    grid-column: 2;
+    grid-row: 1 / 3;
+  }
+
+  .c-price {
+    display: inline-flex;
+    gap: 0.45rem;
+    font-weight: 600;
+  }
+
+  .c-price del {
+    color: #8d8a85;
+    font-weight: 400;
+  }
+
+  .c-add {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    transition: transform 0.3s var(--ease);
+  }
+
+  .c-add svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+  }
+
+  .c-add:hover {
+    transform: rotate(90deg);
+  }
+
+  .c-menu {
+    padding-bottom: 2rem;
+  }
+
+  .c-tabs-wrap {
+    position: sticky;
+    top: 84px;
+    z-index: 30;
+    margin-bottom: 1rem;
+    padding: 0.6rem 0;
+    transition: background-color 0.3s;
+  }
+
+  .c-tabs-wrap.is-stuck {
+    background: linear-gradient(#f6f5f2 70%, rgba(246, 245, 242, 0));
+  }
+
+  .c-tabs {
+    position: relative;
+    display: flex;
+    gap: 0.4rem;
+    width: max-content;
+    max-width: 100%;
+    padding: 0.25rem;
+    overflow-x: auto;
+    border-radius: 999px;
+    background: #ecebe8;
+    scrollbar-width: none;
+  }
+
+  .c-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .c-tabs a {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    padding: 0.62rem 1.1rem;
+    border-radius: 999px;
+    color: #5e5c58;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.3s;
+  }
+
+  .c-tabs a[aria-current="true"] {
+    color: #fff;
+  }
+
+  .c-tabs-pill {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0;
+    z-index: 0;
+    border-radius: 999px;
+    background: #111;
+    transition:
+      transform 0.45s var(--ease),
+      width 0.45s var(--ease);
+  }
+
+  .c-cat {
+    padding-top: 1.5rem;
+    scroll-margin-top: 150px;
+  }
+
+  .c-cat-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    font: 800 1.5rem/1 "Archivo", sans-serif;
+  }
+
+  .c-cat-title small {
+    color: #8d8a85;
+    font: 500 0.8rem/1 "Poppins", sans-serif;
+  }
+
+  .c-items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .c-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 128px;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.12);
+    cursor: pointer;
+    transition: box-shadow 0.35s var(--ease);
+  }
+
+  .c-item:hover {
+    box-shadow: 0 0 0 1.5px #111;
+  }
+
+  .c-item-text h4 {
+    margin: 0 0 0.35rem;
+    font: 800 1.08rem/1.2 "Archivo", sans-serif;
+  }
+
+  .c-item-text h4 button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .c-item-text h4 button::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 22px;
+  }
+
+  .c-item-text h4 button:focus-visible::after {
+    outline: 2px solid #111;
+    outline-offset: 2px;
+  }
+
+  .c-item-text p {
+    display: -webkit-box;
+    margin: 0 0 0.8rem;
+    overflow: hidden;
+    color: #5e5c58;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .c-item-photo {
+    position: relative;
+  }
+
+  .c-item-photo .c-photo {
+    aspect-ratio: 1;
+    border-radius: 16px;
+  }
+
+  .c-item:hover .c-photo svg,
+  .c-item:hover .c-photo img {
+    transform: scale(1.07);
+  }
+
+  .c-item-photo .c-add {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    z-index: 2;
+    width: 36px;
+    height: 36px;
+    box-shadow: 0 0 0 3px #fff;
+  }
+
+  .c-steps-box {
+    position: relative;
+  }
+
+  .c-thread {
+    position: absolute;
+    top: -10px;
+    left: 0;
+    width: 100%;
+    height: 160px;
+    overflow: visible;
+  }
+
+  .c-thread path {
+    fill: none;
+    stroke: #ffd60a;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    vector-effect: non-scaling-stroke;
+    transition: stroke-dashoffset 1.8s var(--ease);
+  }
+
+  .c-thread.is-drawn path {
+    stroke-dashoffset: 0;
+  }
+
+  .c-steps-list {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .c-steps-list span {
+    display: grid;
+    place-items: center;
+    width: 3.2rem;
+    height: 3.2rem;
+    margin-bottom: 1rem;
+    border-radius: 50%;
+    background: #111;
+    color: #ffd60a;
+    font: italic 900 1.4rem/1 "Archivo", sans-serif;
+  }
+
+  .c-steps-list h3 {
+    margin: 0 0 0.4rem;
+    font: 800 1.4rem/1.1 "Archivo", sans-serif;
+  }
+
+  .c-steps-list p {
+    max-width: 30ch;
+    margin: 0;
+    color: #5e5c58;
+  }
+
+  .c-info-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: start;
+    gap: 3rem;
+  }
+
+  .c-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .c-card {
+    padding: 1.3rem 1.4rem;
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.12);
+  }
+
+  .c-card h3 {
+    margin: 0 0 0.8rem;
+    font: 800 1.1rem/1 "Archivo", sans-serif;
+  }
+
+  .c-rows {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0;
+    padding: 0;
+    font-size: 0.92rem;
+    list-style: none;
+  }
+
+  .c-rows li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px dashed rgba(17, 17, 17, 0.12);
+    color: #5e5c58;
+  }
+
+  .c-rows li span:last-child {
+    color: #111;
+    font-weight: 500;
+  }
+
+  .c-rows li.is-today {
+    margin: 0 -0.6rem;
+    padding-inline: 0.6rem;
+    border-radius: 10px;
+    background: #fff6c7;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.7s var(--ease),
+      transform 0.7s var(--ease);
+  }
+
+  .reveal.is-on {
+    opacity: 1;
+    transform: none;
+  }
+
+  @keyframes c-rise {
+    from {
+      transform: translateY(105%);
+    }
+  }
+
+  @keyframes c-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
+  @keyframes c-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes c-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes c-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 214, 10, 0.6);
+    }
+    70% {
+      box-shadow: 0 0 0 7px rgba(255, 214, 10, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(255, 214, 10, 0);
+    }
+  }
+
+  @media (max-width: 960px) {
+    .c-top {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .c-items,
+    .c-info-grid,
+    .c-steps-list {
+      grid-template-columns: 1fr;
+    }
+
+    .c-thread {
+      display: none;
+    }
+  }
+
+  @media (max-width: 860px) {
+    .c-links {
+      display: none;
+    }
+
+    .c-bag {
+      margin-left: auto;
+    }
+
+    .c-hero-card {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .c-hero-text {
+      width: auto;
+      padding: 6.5rem 1.4rem 1rem;
+    }
+
+    .c-disc-wrap {
+      position: relative;
+      top: auto;
+      left: auto;
+      width: 118vw;
+      margin: 0 0 -40vw -9vw;
+      translate: none;
+    }
+
+    .c-hero-title--light {
+      display: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .c-top {
+      display: flex;
+      margin-inline: -1.25rem;
+      padding-inline: 1.25rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+    }
+
+    .c-top-card {
+      flex: 0 0 72%;
+      scroll-snap-align: start;
+    }
+
+    .c-cards {
+      grid-template-columns: 1fr;
+    }
+
+    .c-item {
+      grid-template-columns: 1fr 104px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .c-status,
+    .c-line > span,
+    .c-hero-sub,
+    .c-hero-ctas,
+    .c-disc,
+    .c-plate {
+      animation: none;
+    }
+
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .c-thread path {
+      stroke-dashoffset: 0;
+      transition: none;
+    }
+  }
+</style>

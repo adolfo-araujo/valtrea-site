@@ -1,0 +1,6 @@
+Fotos opcionais do cardápio. Se um destes arquivos existir aqui, ele substitui a ilustração automaticamente:
+
+hero.jpg   foto vista de cima que aparece no prato da abertura
+classico.jpg, bacon.jpg, trufado.jpg, picante.jpg, frango.jpg, veg.jpg,
+combo-classico.jpg, combo-dupla.jpg, fritas.jpg, fritas-cheddar.jpg, onion.jpg,
+lata.jpg, limonada.jpg, shake.jpg, brownie.jpg, cookie.jpg   foto de cada item

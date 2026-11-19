@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.wrangler/
+.turbo/
+.dev.vars
+.env
+.DS_Store
+.astro/
+test-results/
+playwright-report/
+ESCOPO.md

@@ -1,0 +1,395 @@
+---
+import { company, hasWhatsapp, quoteMailto, socialUrl, talkUrl } from "../../config/company";
+import { sitePaths } from "../../config/paths";
+import { liveProducts } from "../../config/showcase";
+import { dictionaryFor, type Locale } from "../../i18n";
+import Logo from "../Logo.astro";
+import Flag from "./Flag.astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+  otherLanguageHref: string;
+}
+
+const { locale, otherLanguageHref } = Astro.props;
+const s = dictionaryFor(locale).site;
+const p = sitePaths(locale);
+
+interface SubLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const serviceIds = ["institucional", "landing", "sistemas", "apps"];
+const instagram = socialUrl("instagram");
+const contactSub: SubLink[] = [
+  ...(hasWhatsapp() ? [{ label: "WhatsApp", href: talkUrl(s.contact.message), external: true }] : []),
+  ...(instagram ? [{ label: "Instagram", href: instagram, external: true }] : []),
+  { label: s.nav.email, href: quoteMailto(s.contact.subject) },
+  { label: s.nav.form, href: p.contact },
+];
+
+const items: { label: string; href: string; sub: SubLink[] }[] = [
+  {
+    label: s.nav.services,
+    href: `${p.home}#servicos`,
+    sub: s.services.items
+      .filter((item) => serviceIds.includes(item.id))
+      .sort((a, b) => serviceIds.indexOf(a.id) - serviceIds.indexOf(b.id))
+      .map((item) => ({ label: item.title, href: `${p.home}#s-${item.id}` })),
+  },
+  {
+    label: s.nav.process,
+    href: `${p.home}#processo`,
+    sub: s.process.steps.map((step, index) => ({ label: step.title.split(" ")[0] ?? step.title, href: `${p.home}#etapa-${index + 1}` })),
+  },
+  {
+    label: s.nav.projects,
+    href: p.projects,
+    sub: [
+      { label: s.nav.showcase, href: p.projects },
+      ...liveProducts.map((product) => ({ label: product.name.replace("Valtrea ", ""), href: product.href, external: true })),
+    ],
+  },
+  { label: s.nav.contact, href: `${p.home}#contato`, sub: contactSub },
+];
+const flag = locale === "pt" ? "br" : "us";
+const otherLang = locale === "pt" ? "en" : "pt-BR";
+---
+
+<header class="site-nav" data-site-nav>
+  <nav class="nav-shell" aria-label={s.nav.label}>
+    <div class="nav-bar">
+      <a class="nav-logo" href={p.home} aria-label={company.name}><Logo /></a>
+      <ul class="nav-links">
+        {
+          items.map((item) => (
+            <li class="nav-item">
+              <a class="nav-link" href={item.href}>{item.label}</a>
+              <ul class="nav-sub">
+                {item.sub.map((link) => (
+                  <li>
+                    <a href={link.href} target={link.external ? "_blank" : undefined} rel={link.external ? "noopener" : undefined}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))
+        }
+      </ul>
+      <div class="nav-actions">
+        <a class="nav-flag" data-lang-switch href={otherLanguageHref} hreflang={otherLang} aria-label={s.nav.language} title={s.nav.language}>
+          <Flag country={flag} size={24} />
+        </a>
+        <a class="nav-cta" href={p.contact}>{s.nav.cta}</a>
+        <details class="nav-menu" data-nav-menu>
+          <summary aria-label={s.nav.menu}><Icon name="menu" size={22} /></summary>
+          <div class="nav-sheet">
+            {
+              items.map((item) => (
+                <div class="sheet-group">
+                  <a class="sheet-link" href={item.href} data-menu-link>{item.label}</a>
+                  <ul>
+                    {item.sub.map((link) => (
+                      <li>
+                        <a href={link.href} data-menu-link target={link.external ? "_blank" : undefined} rel={link.external ? "noopener" : undefined}>
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))
+            }
+            <div class="sheet-foot">
+              <a class="sheet-flag" data-lang-switch href={otherLanguageHref} hreflang={otherLang} aria-label={s.nav.language}>
+                <Flag country={flag} size={26} />
+              </a>
+              <a class="sheet-cta" href={p.contact} data-menu-link>{s.nav.cta}</a>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .site-nav {
+    position: fixed;
+    inset: 0.75rem var(--gutter) auto;
+    z-index: 60;
+    pointer-events: none;
+  }
+
+  .nav-shell {
+    position: relative;
+    max-width: var(--container);
+    margin: 0 auto;
+    padding: 0 0.55rem 0 1rem;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: var(--lg-shadow), 0 18px 40px -30px rgba(17, 17, 22, 0.35);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    pointer-events: auto;
+    transition:
+      padding-bottom 0.38s var(--ease) 0.08s,
+      background 0.3s var(--ease);
+  }
+
+  .nav-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 3.6rem;
+  }
+
+  .nav-logo {
+    display: inline-flex;
+    color: var(--text);
+    text-decoration: none;
+    flex: none;
+  }
+
+  .nav-links {
+    position: relative;
+    display: flex;
+    gap: 2.6rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-links::after {
+    content: "";
+    position: absolute;
+    left: -2rem;
+    right: -2rem;
+    top: 100%;
+    height: 0;
+  }
+
+  .nav-item {
+    position: relative;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 0.94rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s var(--ease);
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    background: rgba(17, 17, 22, 0.06);
+  }
+
+  .nav-sub {
+    position: absolute;
+    top: calc(100% + 1.1rem);
+    left: 50%;
+    display: grid;
+    justify-items: center;
+    gap: 0.85rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, -6px);
+    transition:
+      opacity 0.22s var(--ease),
+      transform 0.28s var(--ease),
+      visibility 0s linear 0.28s;
+  }
+
+  .nav-sub a {
+    color: var(--text-mute);
+    font-size: 0.92rem;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.18s var(--ease);
+  }
+
+  .nav-sub a:hover,
+  .nav-sub a:focus-visible {
+    color: var(--text);
+  }
+
+  .nav-links:hover::after,
+  .nav-links:focus-within::after {
+    height: 13rem;
+  }
+
+  .nav-shell:has(.nav-links:hover),
+  .nav-shell:has(.nav-links:focus-within) {
+    padding-bottom: 12.4rem;
+    background: rgba(255, 255, 255, 0.74);
+    transition-delay: 0s;
+  }
+
+  .nav-links:hover .nav-sub,
+  .nav-links:focus-within .nav-sub {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0);
+    transition:
+      opacity 0.25s var(--ease) 0.08s,
+      transform 0.3s var(--ease) 0.08s,
+      visibility 0s;
+  }
+
+  .nav-item:hover .nav-link {
+    background: rgba(17, 17, 22, 0.06);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    flex: none;
+  }
+
+  .nav-flag,
+  .sheet-flag {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    transition: transform 0.25s var(--ease), background 0.2s var(--ease);
+  }
+
+  .nav-flag:hover {
+    background: rgba(17, 17, 22, 0.06);
+    transform: scale(1.06);
+  }
+
+  .nav-cta,
+  .sheet-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.15rem;
+    border-radius: 999px;
+    background: var(--text);
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+  }
+
+  .nav-cta:hover,
+  .sheet-cta:hover {
+    background: var(--brand-deep);
+    transform: translateY(-1px);
+  }
+
+  .nav-menu {
+    display: none;
+  }
+
+  .nav-menu summary {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 50%;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .nav-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-sheet {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: 1.1rem;
+    max-height: calc(100dvh - 6rem);
+    overflow-y: auto;
+    padding: 1.25rem;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow: var(--lg-shadow), 0 30px 60px -30px rgba(17, 17, 22, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  .sheet-group ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1rem;
+    margin: 0.35rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sheet-link {
+    color: var(--text);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .sheet-group ul a {
+    color: var(--text-mute);
+    font-size: 0.92rem;
+    text-decoration: none;
+  }
+
+  .sheet-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+  }
+
+  @media (max-width: 1023px) {
+    .nav-links,
+    .nav-flag {
+      display: none;
+    }
+
+    .nav-actions {
+      margin-left: auto;
+    }
+
+    .nav-menu {
+      display: block;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .nav-cta {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-shell,
+    .nav-sub {
+      transition: none;
+    }
+  }
+</style>

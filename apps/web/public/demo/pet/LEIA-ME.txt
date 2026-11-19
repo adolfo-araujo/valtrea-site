@@ -1,0 +1,6 @@
+Fotos opcionais da demonstração pet. Se um destes arquivos existir aqui, ele substitui a ilustração automaticamente:
+
+casa.jpg   foto larga da faixa "Para o pet e a lavanderia" (pessoa no sofá com o pet)
+luva.jpg, coletor.jpg, osso.jpg, madeira.jpg   foto de cada produto
+
+Use fotos com licença comercial (Pexels, Unsplash) ou fotos suas. Os depoimentos só devem ser trocados por depoimentos reais, com autorização.

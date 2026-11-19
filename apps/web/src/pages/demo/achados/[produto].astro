@@ -1,0 +1,140 @@
+---
+import AchadosShell from "../../../components/demo/AchadosShell.astro";
+import { finds, type Find } from "../../../config/demo-achados";
+
+export function getStaticPaths() {
+  return finds.map((item) => ({ params: { produto: item.id }, props: { item } }));
+}
+
+interface Props {
+  item: Find;
+}
+
+const { item } = Astro.props;
+const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+const installment = money(item.price / 12);
+---
+
+<AchadosShell title={`${item.name} · Caixote (demonstração)`} path={`/demo/achados/${item.id}`}>
+  <section class="pd" data-tilt-area>
+    <div class="pd-wrap">
+      <a class="pd-back" href="/demo/achados#caixas">← Todas as caixas</a>
+      <div class="pd-grid">
+        <div class="pd-art" aria-hidden="true">
+          <svg viewBox="0 0 200 200"><use href={`#${item.art}`} /></svg>
+        </div>
+        <div>
+          <h1>{item.name}</h1>
+          <p class="pd-text">{item.text}</p>
+          <p class="pd-price">{money(item.price)}</p>
+          <p class="pd-split">ou 12x de {installment} no cartão · Pix à vista</p>
+          <ul>
+            {item.points.map((point) => <li>{point}</li>)}
+          </ul>
+          <button type="button" class="pd-add" data-add={item.id}>Colocar no carrinho</button>
+          <p class="pd-note">Frete grátis para todo o Brasil · devolução em 7 dias</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</AchadosShell>
+
+<style>
+  .pd {
+    padding: 7rem 0 4rem;
+  }
+
+  .pd-wrap {
+    width: min(100% - 2.5rem, 64rem);
+    margin: 0 auto;
+  }
+
+  .pd-back {
+    color: var(--d-mute);
+    text-decoration: none;
+  }
+
+  .pd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .pd-art {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    background: #f4f4f2;
+  }
+
+  .pd-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: "Archivo", var(--font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .pd-text {
+    color: var(--d-mute);
+  }
+
+  .pd-price {
+    margin: 1rem 0 0;
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    font-weight: 800;
+  }
+
+  .pd-split {
+    margin: 0.2rem 0 1rem;
+    color: var(--d-mute);
+  }
+
+  ul {
+    display: grid;
+    gap: 0.4rem;
+    margin: 0 0 1.4rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  li::before {
+    content: "✓ ";
+    color: var(--d-accent);
+    font-weight: 800;
+  }
+
+  .pd-add {
+    width: 100%;
+    padding: 1rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--d-accent);
+    color: #fff;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .pd-note {
+    color: var(--d-mute);
+    font-size: 0.88rem;
+    text-align: center;
+  }
+
+  @media (max-width: 760px) {
+    .pd-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

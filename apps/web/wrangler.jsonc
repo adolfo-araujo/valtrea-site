@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "valtrea-web",
+  "compatibility_date": "2026-10-01",
+  "routes": [
+    { "pattern": "www.valtrea.com.br", "custom_domain": true },
+    { "pattern": "valtrea.com.br", "custom_domain": true },
+    { "pattern": "novo.valtrea.com.br", "custom_domain": true },
+  ],
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+  },
+}

@@ -1,0 +1,60 @@
+---
+import { coffeePathFor } from "../config/coffee";
+import { dictionaryFor, type Locale } from "../i18n";
+import CoffeeCup from "./CoffeeCup.astro";
+
+interface Props {
+  locale: Locale;
+  plain?: boolean;
+}
+
+const { locale, plain = false } = Astro.props;
+const { coffee } = dictionaryFor(locale).free;
+---
+
+<div class:list={["coffee", { "coffee--plain": plain }]} data-coffee data-one={coffee.one} data-many={coffee.many} data-locale={dictionaryFor(locale).locale}>
+  {!plain && <p class="coffee-note">{coffee.note}</p>}
+  <a class="btn btn-primary coffee-button" href={coffeePathFor(locale)} data-track="coffee">
+    <CoffeeCup />
+    <span>{coffee.button}</span>
+    <span class="coffee-price">{coffee.price}</span>
+  </a>
+  <p class="coffee-count" data-coffee-count hidden></p>
+</div>
+
+<style>
+  .coffee {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    margin-top: 3rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .coffee--plain {
+    margin-top: 2rem;
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .coffee-note {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+  }
+
+  .coffee-button {
+    white-space: nowrap;
+  }
+
+  .coffee-price {
+    padding-left: 0.7rem;
+    margin-left: 0.15rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .coffee-count {
+    color: var(--text-mute);
+    font-size: 0.85rem;
+  }
+</style>

@@ -1,0 +1,318 @@
+---
+import { business } from "../../config/business";
+import Icon from "../site/Icon.astro";
+
+interface Props {
+  id?: string;
+  lead?: string;
+  title?: string;
+  ctaHref?: string;
+}
+
+const { id = "planos", lead = "quer lucrar", title = "junto com a gente?", ctaHref = "#entrar" } = Astro.props;
+---
+
+    <section class="b-section" id={id}>
+      <div class="b-wrap">
+        <h2 class="b-split b-split--center"><em>{lead}</em><span>{title}</span><mark>sem curso</mark></h2>
+        <div class="b-explain">
+          {
+            business.explainers.map((item, index) => (
+              <div>
+                <span class={`b-tag ${index ? "b-tag--dark" : ""}`}>{item.tag}</span>
+                <p>{item.text}</p>
+              </div>
+            ))
+          }
+        </div>
+        <div class="b-plans">
+          {
+            business.plans.map((plan) => (
+              <article class={`b-plan ${plan.featured ? "is-featured" : ""}`} data-plan-id={plan.id} data-plan-name={plan.name}>
+                <div class="b-plan-top">
+                  <span class="b-kicker">{plan.kicker}</span>
+                  <span class={`b-tag ${plan.tag === "comissão" ? "" : "b-tag--dark"}`}>{plan.tag}</span>
+                </div>
+                <h3>{plan.name}</h3>
+                <div class="b-gain">
+                  <span>{plan.gainLabel}</span>
+                  <strong>{plan.gain}</strong>
+                </div>
+                <p class="b-receive-label">O que você recebe</p>
+                <ul>
+                  {plan.receives.map((item) => (
+                    <li>
+                      <Icon name="check" size={18} /> {item}
+                    </li>
+                  ))}
+                </ul>
+                <div class="b-price">
+                  <span>{plan.note}</span>
+                  <strong>
+                    {plan.installments && <small>{plan.installments}</small>}
+                    {plan.price}
+                  </strong>
+                </div>
+                <a class="b-plan-cta" href={ctaHref} data-pick-plan={plan.name}>
+                  {plan.cta}
+                </a>
+              </article>
+            ))
+          }
+        </div>
+        <p class="b-disclaimer">{business.disclaimer}</p>
+      </div>
+    </section>
+
+<style>
+  .b-section {
+    padding: 5rem 0;
+  }
+
+  .b-wrap {
+    width: min(100% - 2.5rem, 68rem);
+    margin: 0 auto;
+  }
+
+  .b-split {
+    display: grid;
+    justify-items: center;
+    margin-bottom: 3rem;
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .b-split em {
+    font-family: "Instrument Serif", Georgia, serif;
+    font-size: 0.72em;
+    font-weight: 400;
+    letter-spacing: 0;
+  }
+
+  .b-split mark {
+    margin-top: 0.4rem;
+    padding: 0.1em 0.35em 0.15em;
+    background: var(--text);
+    color: #fff;
+  }
+
+  .b-explain {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 52rem;
+    margin: 0 auto 2.6rem;
+  }
+
+  .b-explain div {
+    padding: 1.2rem 1.4rem;
+    border-radius: 18px;
+    background: #f2f2f3;
+  }
+
+  .b-explain p {
+    margin: 0.7rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+  }
+
+  .b-tag {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border: 1.5px solid var(--text);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .b-tag--dark {
+    background: var(--text);
+    color: #fff;
+  }
+
+  .b-plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    align-items: center;
+    gap: 1rem;
+    max-width: 62rem;
+    margin: 0 auto;
+  }
+
+  .b-plan {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    min-height: 37rem;
+    padding: 1.8rem 1.6rem;
+    border: 1px solid var(--line);
+    border-radius: 26px;
+    background: #fff;
+  }
+
+  .b-plan.is-featured {
+    min-height: 39rem;
+    border-color: #0b0b0d;
+    background: #0b0b0d;
+    color: #fff;
+    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.6);
+  }
+
+  .b-plan-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .b-kicker {
+    color: var(--text-soft);
+    font-size: 0.85rem;
+  }
+
+  .b-plan.is-featured .b-kicker {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .b-plan.is-featured .b-tag {
+    border-color: #fff;
+    background: #fff;
+    color: #0b0b0d;
+  }
+
+  .b-plan h3 {
+    font-size: 1.75rem;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .b-plan.is-featured h3 {
+    color: #fff;
+  }
+
+  .b-gain {
+    display: grid;
+    gap: 0.2rem;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    background: #f2f2f3;
+  }
+
+  .b-plan.is-featured .b-gain {
+    background: #1d1d21;
+  }
+
+  .b-gain span {
+    color: var(--text-soft);
+    font-size: 0.82rem;
+  }
+
+  .b-plan.is-featured .b-gain span {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .b-gain strong {
+    font-size: 1.35rem;
+  }
+
+  .b-receive-label {
+    margin: 0;
+    color: var(--text-soft);
+    font-size: 0.82rem;
+  }
+
+  .b-plan.is-featured .b-receive-label {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .b-plan ul {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .b-plan li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .b-plan li :global(svg) {
+    flex: none;
+    margin-top: 0.15rem;
+  }
+
+  .b-price {
+    display: grid;
+    gap: 0.2rem;
+    margin-top: auto;
+  }
+
+  .b-price span {
+    color: var(--text-soft);
+    font-size: 0.82rem;
+  }
+
+  .b-plan.is-featured .b-price span {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .b-price strong {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    letter-spacing: -0.03em;
+  }
+
+  .b-price small {
+    margin-right: 0.3rem;
+    font-size: 0.55em;
+  }
+
+  .b-plan-cta {
+    display: block;
+    padding: 0.95rem;
+    border-radius: 999px;
+    background: #0b0b0d;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    transition: transform 0.2s var(--ease);
+  }
+
+  .b-plan-cta:hover {
+    transform: translateY(-2px);
+  }
+
+  .b-plan.is-featured .b-plan-cta {
+    background: #fff;
+    color: #0b0b0d;
+  }
+
+  .b-disclaimer {
+    margin: 1.6rem 0 0;
+    color: var(--text-mute);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  @media (max-width: 860px) {
+    .b-explain,
+    .b-plans {
+      grid-template-columns: 1fr;
+    }
+
+    .b-plan,
+    .b-plan.is-featured {
+      min-height: 0;
+    }
+  }
+</style>

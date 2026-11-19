@@ -1,0 +1,18 @@
+{
+  "name": "@valtrea/tracker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --minify --format=iife --target=es2020 --outfile=dist/t.js && node -e \"require('fs').copyFileSync('public/_headers','dist/_headers')\"",
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@valtrea/shared": "workspace:*",
+    "@types/node": "24.19.2",
+    "esbuild": "0.28.2",
+    "happy-dom": "21.0.3",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

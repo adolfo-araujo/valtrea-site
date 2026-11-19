@@ -1,0 +1,216 @@
+---
+import { dictionaryFor, type Locale } from "../i18n";
+import Coffee from "./Coffee.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = dictionaryFor(locale);
+const beans = ["bean-a", "bean-b", "bean-c", "bean-d"];
+const edgeBeans = ["edge-a", "edge-b", "edge-c"];
+---
+
+<section class="section coffee-section" id="coffee" data-bean-drift>
+  {
+    edgeBeans.map((bean) => (
+      <img class={`edge-bean ${bean}`} src="/coffee/bean.webp" width="144" height="191" alt="" aria-hidden="true" loading="lazy" decoding="async" />
+    ))
+  }
+  <div class="container coffee-layout">
+    <div class="coffee-copy reveal">
+      <h2 class="section-title">{t.coffeeSection.title}</h2>
+      <p class="section-sub">{t.coffeeSection.sub}</p>
+      <Coffee locale={locale} plain />
+    </div>
+
+    <div class="coffee-art reveal" aria-hidden="true">
+      <span class="coffee-glow"></span>
+      <img class="coffee-cup" src="/coffee/cup.webp" width="715" height="494" alt="" loading="lazy" decoding="async" />
+      {
+        beans.map((bean) => (
+          <img class={`coffee-bean ${bean}`} src="/coffee/bean.webp" width="144" height="191" alt="" loading="lazy" decoding="async" />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .coffee-section {
+    position: relative;
+    overflow-x: clip;
+  }
+
+  .coffee-layout {
+    position: relative;
+    z-index: 1;
+  }
+
+  .edge-bean {
+    position: absolute;
+    translate: 0 calc(var(--lag, 0px) * var(--depth));
+    width: var(--size);
+    height: auto;
+    transform: rotate(var(--turn));
+    filter: drop-shadow(0 24px 30px rgba(70, 36, 12, 0.22)) blur(var(--blur));
+    animation: bean-float var(--pace) ease-in-out var(--delay) infinite alternate;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .edge-a {
+    --size: clamp(8rem, 22vw, 17rem);
+    --depth: 1.8;
+    --turn: 24deg;
+    --blur: 3px;
+    --pace: 8s;
+    --delay: -1s;
+    bottom: -7rem;
+    left: 22%;
+  }
+
+  .edge-b {
+    --size: clamp(6rem, 16vw, 12rem);
+    --depth: 1.4;
+    --turn: -48deg;
+    --blur: 4px;
+    --pace: 9s;
+    --delay: -4s;
+    top: -6rem;
+    right: -2rem;
+  }
+
+  .edge-c {
+    --size: clamp(4.5rem, 10vw, 7.5rem);
+    --depth: 1;
+    --turn: 112deg;
+    --blur: 1.5px;
+    --pace: 7s;
+    --delay: -2.5s;
+    top: -4rem;
+    left: 6%;
+  }
+
+  .coffee-layout {
+    display: grid;
+    gap: 1.5rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .coffee-art {
+    position: relative;
+    order: -1;
+    width: min(100%, 26rem);
+    margin-inline: auto;
+    padding: 8% 6%;
+  }
+
+  .coffee-glow {
+    position: absolute;
+    inset: 10% 8%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(196, 122, 52, 0.24), rgba(196, 122, 52, 0));
+    filter: blur(24px);
+  }
+
+  .coffee-cup {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 28px 28px rgba(70, 36, 12, 0.14));
+  }
+
+  .coffee-bean {
+    position: absolute;
+    translate: 0 calc(var(--lag, 0px) * var(--depth, 0.4));
+    width: var(--size);
+    height: auto;
+    transform: rotate(var(--turn));
+    filter: drop-shadow(0 10px 12px rgba(70, 36, 12, 0.22)) blur(var(--blur, 0));
+    animation: bean-float var(--pace) ease-in-out var(--delay) infinite alternate;
+  }
+
+  .bean-a {
+    --size: clamp(2.2rem, 7vw, 3.3rem);
+    --turn: -28deg;
+    --pace: 5.5s;
+    --delay: 0s;
+    top: 4%;
+    left: 2%;
+  }
+
+  .bean-b {
+    --size: clamp(1.6rem, 5vw, 2.4rem);
+    --turn: 38deg;
+    --pace: 6.5s;
+    --delay: -2s;
+    --blur: 1px;
+    top: 0;
+    right: 10%;
+  }
+
+  .bean-c {
+    --size: clamp(2rem, 6vw, 2.9rem);
+    --turn: 74deg;
+    --pace: 6s;
+    --delay: -1s;
+    bottom: 6%;
+    right: 0;
+  }
+
+  .bean-d {
+    --size: clamp(1.3rem, 4vw, 1.9rem);
+    --turn: -62deg;
+    --pace: 7s;
+    --delay: -3.5s;
+    --blur: 1.5px;
+    bottom: 2%;
+    left: 14%;
+  }
+
+  @keyframes bean-float {
+    to {
+      transform: translate3d(0, -0.6rem, 0) rotate(calc(var(--turn) + 10deg));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .coffee-bean,
+    .edge-bean {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 859px) {
+    .edge-a {
+      bottom: -5.5rem;
+      left: -3rem;
+    }
+
+    .edge-c {
+      display: none;
+    }
+  }
+
+  @media (min-width: 860px) {
+    .coffee-layout {
+      grid-template-columns: 1fr 1.05fr;
+      gap: 3rem;
+      text-align: left;
+    }
+
+    .coffee-art {
+      order: 0;
+      width: min(100%, 32rem);
+      margin-inline: auto 0;
+    }
+
+    .coffee-copy :global(.coffee) {
+      justify-items: start;
+    }
+  }
+</style>

@@ -1,0 +1,33 @@
+---
+import type { Locale } from "../../i18n";
+import Layout from "../../layouts/Layout.astro";
+import Backdrop from "./Backdrop.astro";
+import ChatWidget from "./ChatWidget.astro";
+import SiteFooter from "./SiteFooter.astro";
+import SiteNav from "./SiteNav.astro";
+
+interface Props {
+  locale: Locale;
+  path: string;
+  otherLanguageHref: string;
+  title?: string | undefined;
+  description?: string | undefined;
+  chat?: boolean;
+  compactFooter?: boolean;
+  intro?: boolean;
+  noindex?: boolean;
+}
+
+const { locale, path, otherLanguageHref, title, description, chat = true, compactFooter = false, intro = false, noindex = false } = Astro.props;
+const alternates = locale === "pt" ? { pt: path, en: otherLanguageHref } : { pt: otherLanguageHref, en: path };
+---
+
+<Layout locale={locale} path={path} title={title} description={description} alternates={alternates} intro={intro} noindex={noindex} bodyClass="has-backdrop">
+  <Backdrop />
+  <SiteNav locale={locale} otherLanguageHref={otherLanguageHref} />
+  <main id="main" class="site-main">
+    <slot />
+  </main>
+  <SiteFooter locale={locale} otherLanguageHref={otherLanguageHref} compact={compactFooter} />
+  {chat && <ChatWidget locale={locale} />}
+</Layout>

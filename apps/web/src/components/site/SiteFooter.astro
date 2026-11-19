@@ -1,0 +1,297 @@
+---
+import { company, hasWhatsapp, quoteMailto, socialUrl, talkUrl } from "../../config/company";
+import { legalIdentity, legalLabels, legalPath, type LegalDoc } from "../../config/legal";
+import { sitePaths } from "../../config/paths";
+import { dictionaryFor, type Locale } from "../../i18n";
+import Logo from "../Logo.astro";
+import BrandIcon from "./BrandIcon.astro";
+import Flag from "./Flag.astro";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+  otherLanguageHref: string;
+  compact?: boolean;
+}
+
+const { locale, otherLanguageHref, compact = false } = Astro.props;
+const s = dictionaryFor(locale).site;
+const p = sitePaths(locale);
+const year = new Date().getFullYear();
+const navHrefs = [`${p.home}#topo`, `${p.home}#servicos`, `${p.home}#garantias`, `${p.home}#processo`, p.projects, `${p.home}#contato`];
+const serviceIds = ["vendas", "landing", "sistemas", "apps"];
+const moreHrefs = [p.products, "/cartao", "/links"];
+const socials = (["instagram", "tiktok", "youtube"] as const)
+  .map((network) => ({ network, href: socialUrl(network) }))
+  .filter((item) => item.href);
+const flag = locale === "pt" ? "br" : "us";
+const legalDocs: LegalDoc[] = ["privacy", "terms", "accessibility"];
+const legal = legalLabels[locale];
+---
+
+{
+  compact ? (
+    <footer class="foot-compact">
+      <div class="container foot-line">
+        <a href={p.home} class="foot-logo" aria-label={company.name}>
+          <Logo />
+        </a>
+        <span>© {year} {s.footer.rights}</span>
+        <nav class="foot-inline" aria-label={s.footer.navTitle}>
+          <a href={p.home}>{s.footer.nav[0]}</a>
+          <a href={p.projects}>{s.footer.nav[4]}</a>
+          <a href={p.contact}>{s.footer.nav[5]}</a>
+          <a href={legalPath(locale, "privacy")}>{legal.privacy}</a>
+          <a href={legalPath(locale, "terms")}>{legal.terms}</a>
+          <a href={otherLanguageHref} data-lang-switch aria-label={s.nav.language} class="foot-flag">
+            <Flag country={flag} size={20} />
+          </a>
+        </nav>
+      </div>
+      <p class="container foot-id">{legalIdentity(locale)}</p>
+    </footer>
+  ) : (
+    <footer class="foot">
+      <div class="container foot-grid">
+        <div class="foot-brand">
+          <a href={p.home} class="foot-logo" aria-label={company.name}>
+            <Logo />
+          </a>
+          <p>{s.footer.about}</p>
+          <div class="foot-social">
+            {hasWhatsapp() && (
+              <a href={talkUrl(s.contact.message)} target="_blank" rel="noopener" aria-label="WhatsApp">
+                <BrandIcon name="whatsapp" size={18} />
+              </a>
+            )}
+            {socials.map((item) => (
+              <a href={item.href} target="_blank" rel="noopener" aria-label={item.network}>
+                <BrandIcon name={item.network} size={18} />
+              </a>
+            ))}
+            <a href={quoteMailto(s.contact.subject)} aria-label="E-mail">
+              <Icon name="mail" size={18} />
+            </a>
+            <a href={otherLanguageHref} data-lang-switch aria-label={s.nav.language} class="foot-flag">
+              <Flag country={flag} size={22} />
+            </a>
+          </div>
+        </div>
+        <div>
+          <p class="foot-title">{s.footer.navTitle}</p>
+          <ul>
+            {s.footer.nav.map((label, index) => (
+              <li>
+                <a href={navHrefs[index]}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p class="foot-title">{s.footer.servicesTitle}</p>
+          <ul>
+            {s.footer.services.map((label, index) => (
+              <li>
+                <a href={`${p.home}#s-${serviceIds[index] ?? "landing"}`}>{label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <p class="foot-title">{s.footer.moreTitle}</p>
+          <ul>
+            {s.footer.more.map((label, index) => (
+              <li>
+                <a href={moreHrefs[index]}>{label}</a>
+              </li>
+            ))}
+            <li>
+              <a href={quoteMailto(s.contact.subject)}>{company.email}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="container foot-bottom">
+        <span>
+          © {year} {s.footer.rights}
+        </span>
+        <nav class="foot-legal" aria-label={legal.title}>
+          {legalDocs.map((item) => <a href={legalPath(locale, item)}>{legal[item]}</a>)}
+        </nav>
+      </div>
+      <p class="container foot-id">{legalIdentity(locale)}</p>
+    </footer>
+  )
+}
+
+<style>
+  .foot,
+  .foot-compact {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.92rem;
+  }
+
+  .foot {
+    padding: 3.5rem 0 1.5rem;
+  }
+
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .foot-logo {
+    display: inline-flex;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .foot-brand p {
+    max-width: 22rem;
+    margin: 0.9rem 0 1.1rem;
+    color: var(--text-soft);
+  }
+
+  .foot-social {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .foot-social a {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    color: var(--text-soft);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+
+  .foot-social a:hover {
+    color: var(--text);
+    border-color: var(--line-strong);
+  }
+
+  .foot-social .foot-flag {
+    border: 0;
+    background: none;
+  }
+
+  .foot-title {
+    margin: 0 0 0.8rem;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .foot ul {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .foot ul a,
+  .foot-inline a {
+    color: var(--text-soft);
+    text-decoration: none;
+  }
+
+  .foot ul a:hover,
+  .foot-inline a:hover {
+    color: var(--text);
+  }
+
+  .foot-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+    color: var(--text-mute);
+    font-size: 0.85rem;
+  }
+
+  .foot-compact {
+    padding: 1.1rem 0;
+  }
+
+  .foot-line {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    color: var(--text-mute);
+  }
+
+  .foot-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.1rem;
+  }
+
+  .foot-legal a {
+    color: var(--text-soft);
+    text-decoration: none;
+  }
+
+  .foot-legal a:hover {
+    color: var(--text);
+  }
+
+  .foot-id {
+    margin-top: 0.75rem;
+    margin-bottom: 0;
+    color: var(--text-soft);
+    font-size: 0.8rem;
+  }
+
+  .foot-compact .foot-id {
+    margin-top: 0;
+    padding-bottom: 1rem;
+    text-align: center;
+  }
+
+  .foot-inline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.1rem;
+    margin-left: auto;
+  }
+
+  @media (max-width: 860px) {
+    .foot-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .foot-brand {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .foot-line {
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .foot-inline {
+      margin: 0;
+    }
+
+    .foot-bottom {
+      flex-direction: column;
+    }
+  }
+</style>

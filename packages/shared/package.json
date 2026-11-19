@@ -1,0 +1,21 @@
+{
+  "name": "@valtrea/shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./scroll-depths": "./src/scroll-depths.ts",
+    "./cpf": "./src/cpf.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  }
+}

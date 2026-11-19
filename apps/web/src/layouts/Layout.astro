@@ -1,0 +1,76 @@
+---
+import "../styles/tokens.css";
+import "../styles/glass.css";
+import "../styles/base.css";
+import { dictionaryFor, homePathFor, type Locale } from "../i18n";
+
+interface Props {
+  locale: Locale;
+  title?: string | undefined;
+  description?: string | undefined;
+  path?: string | undefined;
+  noindex?: boolean;
+  alternates?: { pt: string; en: string } | undefined;
+  themeColor?: string | undefined;
+  intro?: boolean;
+  bodyClass?: string | undefined;
+  image?: string | undefined;
+}
+
+const { locale, path, noindex = false, alternates, themeColor = "#f3f4f6", intro = false, bodyClass, image = "/previews/valtrea.png" } = Astro.props;
+const t = dictionaryFor(locale);
+const title = Astro.props.title ?? t.meta.title;
+const description = Astro.props.description ?? t.meta.description;
+const site = Astro.site?.origin ?? "https://www.valtrea.com.br";
+const canonical = new URL(path ?? homePathFor(locale), site).href;
+const introScript =
+  'try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches&&!location.hash&&sessionStorage.getItem("valtrea-intro-seen")!=="1"){document.documentElement.classList.add("intro")}}catch(e){}';
+const fonts =
+  "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700..800&family=Poppins:wght@400;500;600&display=swap";
+---
+
+<!doctype html>
+<html lang={t.locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <script is:inline define:vars={{ canonicalOrigin: site }}>
+      if (location.hostname.endsWith(".workers.dev") || location.hostname === "valtrea.com.br" || location.hostname === "novo.valtrea.com.br") {
+        location.replace(canonicalOrigin + location.pathname + location.search + location.hash);
+      }
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content={themeColor} />
+    <title>{title}</title>
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="pt-BR" href={new URL(alternates?.pt ?? homePathFor("pt"), site).href} />
+    <link rel="alternate" hreflang="en" href={new URL(alternates?.en ?? homePathFor("en"), site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(alternates?.pt ?? homePathFor("pt"), site).href} />
+    {intro && <script is:inline set:html={introScript}></script>}
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Valtrea" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={new URL(image, site).href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={fonts} />
+    <script defer src="https://www.valtrea.com.br/t.js"></script>
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#main">{t.skip}</a>
+    <slot />
+    <script>
+      import "../scripts/main";
+    </script>
+  </body>
+</html>

@@ -1,0 +1,262 @@
+---
+import { legalContentFor, legalLabels, legalPath, type LegalDoc } from "../../config/legal";
+import type { Locale } from "../../i18n";
+import SiteShell from "./SiteShell.astro";
+
+interface Props {
+  locale: Locale;
+  doc: LegalDoc;
+}
+
+const { locale, doc } = Astro.props;
+const page = legalContentFor(locale, doc);
+const labels = legalLabels[locale];
+const other = legalPath(locale === "pt" ? "en" : "pt", doc);
+const docs: LegalDoc[] = ["privacy", "terms", "accessibility"];
+const updatedLabel = locale === "pt" ? "Atualizada em" : "Last updated";
+---
+
+<SiteShell locale={locale} path={legalPath(locale, doc)} otherLanguageHref={other} title={`${page.title} | Valtrea`} description={page.description} compactFooter chat={false}>
+  <article class="legal plain-bg">
+    <div class="container legal-grid">
+      <header class="legal-head">
+        <p class="legal-eyebrow">{page.eyebrow}</p>
+        <h1>{page.title}</h1>
+        <p class="legal-updated">{updatedLabel} {page.updated}</p>
+        <p class="legal-intro">{page.intro}</p>
+      </header>
+
+      <aside class="legal-side">
+        <nav class="legal-docs" aria-label={labels.title}>
+          {
+            docs.map((item) => (
+              <a href={legalPath(locale, item)} aria-current={item === doc ? "page" : undefined}>
+                {labels[item]}
+              </a>
+            ))
+          }
+        </nav>
+        <nav class="legal-toc" aria-label={page.toc}>
+          <p>{page.toc}</p>
+          <ol>
+            {
+              page.sections.map((section) => (
+                <li>
+                  <a href={`#${section.id}`}>{section.title.replace(/^\d+\.\s*/, "")}</a>
+                </li>
+              ))
+            }
+          </ol>
+        </nav>
+      </aside>
+
+      <div class="legal-body">
+        {
+          page.sections.map((section) => (
+            <section id={section.id}>
+              <h2>{section.title}</h2>
+              {section.blocks.map((block) =>
+                typeof block === "string" ? (
+                  <p set:html={block} />
+                ) : (
+                  <ul>
+                    {block.list.map((item) => (
+                      <li set:html={item} />
+                    ))}
+                  </ul>
+                ),
+              )}
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </article>
+</SiteShell>
+
+<style>
+  .legal {
+    padding: clamp(7rem, 14vw, 9rem) 0 clamp(4rem, 8vw, 6rem);
+  }
+
+  .legal-grid {
+    display: grid;
+    gap: 2.5rem;
+  }
+
+  .legal-eyebrow {
+    margin: 0 0 0.75rem;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .legal-head h1 {
+    margin: 0;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+
+  .legal-updated {
+    margin: 0.9rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+  }
+
+  .legal-intro {
+    max-width: 44rem;
+    margin: 1.25rem 0 0;
+    color: var(--text-soft);
+    font-size: 1.08rem;
+    line-height: 1.65;
+  }
+
+  .legal-side {
+    display: grid;
+    align-content: start;
+    gap: 1.5rem;
+  }
+
+  .legal-docs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .legal-docs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+
+  .legal-docs a:hover {
+    background: rgba(17, 17, 22, 0.05);
+  }
+
+  .legal-docs a[aria-current="page"] {
+    border-color: var(--text);
+    background: var(--text);
+    color: #fff;
+  }
+
+  .legal-toc {
+    display: none;
+  }
+
+  .legal-toc p {
+    margin: 0 0 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .legal-toc ol {
+    margin: 0;
+    padding: 0 0 0 1.2rem;
+    color: var(--text-soft);
+    font-size: 0.9rem;
+  }
+
+  .legal-toc a {
+    display: inline-block;
+    padding: 0.2rem 0;
+    color: var(--text-soft);
+    text-decoration: none;
+  }
+
+  .legal-toc a:hover {
+    color: var(--text);
+  }
+
+  .legal-body {
+    max-width: 46rem;
+  }
+
+  .legal-body section {
+    scroll-margin-top: 6rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .legal-body section:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .legal-body h2 {
+    margin: 0 0 0.9rem;
+    font-size: clamp(1.25rem, 2.6vw, 1.5rem);
+    letter-spacing: -0.015em;
+  }
+
+  .legal-body p,
+  .legal-body li {
+    color: var(--text-soft);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .legal-body p {
+    margin: 0 0 0.9rem;
+  }
+
+  .legal-body ul {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0 0 0.9rem;
+    padding-left: 1.25rem;
+  }
+
+  .legal-body :global(strong) {
+    color: var(--text);
+  }
+
+  .legal-body :global(a) {
+    color: var(--text);
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+  }
+
+  .legal-body :global(code) {
+    padding: 0.08em 0.35em;
+    border-radius: 0.35rem;
+    background: rgba(17, 17, 22, 0.06);
+    font-size: 0.88em;
+    word-break: break-word;
+  }
+
+  @media (min-width: 960px) {
+    .legal-grid {
+      grid-template-columns: 15rem minmax(0, 1fr);
+      column-gap: clamp(3rem, 6vw, 5rem);
+    }
+
+    .legal-head {
+      grid-column: 1 / -1;
+    }
+
+    .legal-side {
+      position: sticky;
+      top: 6.5rem;
+    }
+
+    .legal-docs {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .legal-toc {
+      display: block;
+    }
+  }
+</style>

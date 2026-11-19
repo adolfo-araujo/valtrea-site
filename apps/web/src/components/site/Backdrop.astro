@@ -1,0 +1,49 @@
+---
+interface Props {
+  dots?: boolean;
+}
+
+const { dots = true } = Astro.props;
+---
+
+<div class:list={["backdrop", { "backdrop--plain": !dots }]} aria-hidden="true">
+  {dots && <canvas data-backdrop />}
+</div>
+
+<style is:global>
+  .backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-color: var(--bg);
+    background-image: radial-gradient(circle at 11px 11px, rgba(17, 17, 22, 0.15) 1px, transparent 1.6px);
+    background-size: 22px 22px;
+  }
+
+  .backdrop canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .backdrop--plain {
+    background-image: none;
+  }
+
+  .plain-bg {
+    position: relative;
+    background-color: var(--bg);
+  }
+
+  .has-backdrop {
+    background: var(--bg);
+  }
+
+  .has-backdrop .site-main,
+  .has-backdrop footer {
+    position: relative;
+    z-index: 1;
+  }
+</style>

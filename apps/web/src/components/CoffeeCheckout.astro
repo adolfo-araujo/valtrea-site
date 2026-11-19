@@ -1,0 +1,778 @@
+---
+import { caktoSdkClientId, coffeeApiUrl, coffeePriceCents } from "../config/coffee";
+import { legalLabels, legalPath } from "../config/legal";
+import { dictionaryFor, homePathFor, type Locale } from "../i18n";
+import CoffeeCup from "./CoffeeCup.astro";
+import Logo from "./Logo.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = dictionaryFor(locale).checkout;
+const home = homePathFor(locale);
+const { locale: numberLocale, free } = dictionaryFor(locale);
+const { coffee } = free;
+const beans = ["bean-a", "bean-b", "bean-c"];
+---
+
+<main
+  id="main"
+  class="checkout container"
+  data-checkout
+  data-step="form"
+  data-api={coffeeApiUrl}
+  data-sdk-client-id={caktoSdkClientId}
+  data-amount={coffeePriceCents}
+  data-copied={t.pix.copied}
+  data-expires-in={t.pix.expiresIn}
+  data-pending={t.pending}
+  data-errors={JSON.stringify(t.errors)}
+>
+  <header class="checkout-top">
+    <a href={home} aria-label="Valtrea"><Logo /></a>
+    <a class="checkout-back" href={home}>{t.back}</a>
+  </header>
+
+  <div class="checkout-stage">
+    <aside class="checkout-showcase">
+      <div class="showcase-art" aria-hidden="true">
+        <span class="showcase-glow"></span>
+        <img class="showcase-cup" src="/coffee/cup.webp" width="715" height="494" alt="" decoding="async" />
+        {
+          beans.map((bean) => (
+            <img class={`showcase-bean ${bean}`} src="/coffee/bean.webp" width="144" height="191" alt="" decoding="async" />
+          ))
+        }
+      </div>
+      <div class="showcase-copy">
+        <h1>{t.title}</h1>
+        <p class="checkout-sub">{t.sub}</p>
+        <p class="checkout-price">
+          <strong>{t.price}</strong>
+          <span>{t.priceNote}</span>
+        </p>
+        <p class="checkout-count" data-coffee data-one={coffee.one} data-many={coffee.many} data-locale={numberLocale}>
+          <span data-coffee-count hidden></span>
+        </p>
+      </div>
+    </aside>
+
+    <ul class="checkout-perks">
+      {
+        t.perks.map((perk) => (
+          <li>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            {perk}
+          </li>
+        ))
+      }
+    </ul>
+
+  <section class="checkout-card glass-plate" aria-live="polite">
+    <form class="checkout-form" data-step-panel="form" novalidate>
+      <fieldset class="checkout-methods">
+        <legend class="sr-only">{t.methods.label}</legend>
+        <label>
+          <input type="radio" name="method" value="pix" checked />
+          <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M8 1.8 14.2 8 8 14.2 1.8 8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" />
+              <path d="M5.4 8 8 5.4 10.6 8 8 10.6Z" fill="currentColor" />
+            </svg>
+            {t.methods.pix}
+          </span>
+        </label>
+        <label>
+          <input type="radio" name="method" value="card" />
+          <span>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="1.8" y="3.5" width="12.4" height="9" rx="1.8" stroke="currentColor" stroke-width="1.5" />
+              <path d="M1.8 6.6h12.4M4.5 10h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+            {t.methods.card}
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="checkout-fields">
+        <label class="field field--wide">
+          <span>{t.fields.name}</span>
+          <input name="name" autocomplete="name" required minlength="3" maxlength="120" />
+        </label>
+        <label class="field">
+          <span>{t.fields.email}</span>
+          <input name="email" type="email" autocomplete="email" required maxlength="254" />
+        </label>
+        <label class="field">
+          <span>{t.fields.phone}</span>
+          <input name="phone" type="tel" autocomplete="tel" inputmode="tel" required placeholder={t.fields.phonePlaceholder} />
+        </label>
+        <label class="field field--wide">
+          <span>{t.fields.cpf}</span>
+          <input name="cpf" inputmode="numeric" autocomplete="off" required={t.cpfRequired} placeholder="000.000.000-00" maxlength="14" />
+          <small>{t.fields.cpfHint}</small>
+        </label>
+      </div>
+
+      <div class="checkout-fields checkout-card-fields" data-card-fields hidden>
+        <label class="field field--wide">
+          <span>{t.fields.cardNumber}</span>
+          <input name="cardNumber" inputmode="numeric" autocomplete="cc-number" maxlength="23" placeholder="0000 0000 0000 0000" />
+        </label>
+        <label class="field field--wide">
+          <span>{t.fields.cardName}</span>
+          <input name="cardName" autocomplete="cc-name" maxlength="120" />
+        </label>
+        <label class="field">
+          <span>{t.fields.cardExpiry}</span>
+          <input name="cardExpiry" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder={t.fields.cardExpiryPlaceholder} />
+        </label>
+        <label class="field">
+          <span>{t.fields.cardCvv}</span>
+          <input name="cardCvv" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="123" />
+        </label>
+        <p class="checkout-secure field--wide">{t.secure}</p>
+      </div>
+
+      <p class="checkout-error" data-error role="alert" hidden></p>
+
+      <button class="btn btn-primary checkout-submit" type="submit" data-label-pix={t.payPix} data-label-card={t.payCard}>
+        <span data-submit-label>{t.payPix}</span>
+      </button>
+      <p class="checkout-legal">
+        {locale === "pt" ? "Ao pagar, você concorda com os " : "By paying you agree to the "}
+        <a href={legalPath(locale, "terms")}>{legalLabels[locale].terms}</a>
+        {locale === "pt" ? " e declara ter lido a " : " and confirm you have read the "}
+        <a href={legalPath(locale, "privacy")}>{legalLabels[locale].privacyPolicy}</a>.
+        {locale === "pt" ? " Você pode desistir em até 7 dias e receber o valor de volta." : " You can cancel within 7 days for a full refund."}
+      </p>
+    </form>
+
+    <div class="checkout-pix" data-step-panel="pix" hidden>
+      <h2>{t.pix.title}</h2>
+      <p class="checkout-sub">{t.pix.scan}</p>
+      <div class="pix-frame">
+        <div class="pix-qr" data-pix-qr></div>
+        <span class="pix-scan" aria-hidden="true"></span>
+      </div>
+      <button class="btn pix-copy liquid-glass" type="button" data-pix-copy>
+        <span data-pix-copy-label>{t.pix.copy}</span>
+      </button>
+      <p class="pix-status" data-pix-status><span class="pix-dot" aria-hidden="true"></span>{t.pix.waiting}</p>
+      <p class="pix-timer" data-pix-timer></p>
+      <div class="pix-expired" data-pix-expired hidden>
+        <p>{t.pix.expired}</p>
+        <button class="btn btn-primary" type="button" data-pix-again>{t.pix.again}</button>
+      </div>
+    </div>
+
+    <div class="checkout-pending" data-step-panel="pending" hidden>
+      <p class="pix-status"><span class="pix-dot" aria-hidden="true"></span>{t.pending}</p>
+    </div>
+
+    <div class="checkout-paid" data-step-panel="paid" hidden>
+      <span class="paid-cup liquid-glass"><CoffeeCup size={34} /><span class="paid-ring" aria-hidden="true"></span></span>
+      <h2>{t.paid.title}</h2>
+      <p class="checkout-sub">{t.paid.text}</p>
+      <a class="btn btn-primary" href={home}>{t.paid.home}</a>
+    </div>
+  </section>
+  </div>
+</main>
+
+<script>
+  import "../scripts/checkout/coffee-checkout";
+</script>
+
+<style>
+  .checkout {
+    display: grid;
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+    max-width: 68rem;
+    min-height: 100vh;
+    padding-block: 1.5rem 4rem;
+    align-content: start;
+  }
+
+  .checkout-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .checkout-top a {
+    text-decoration: none;
+  }
+
+  .checkout-back {
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .checkout-stage {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 34rem;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .checkout-showcase {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .showcase-art {
+    position: relative;
+    width: min(62vw, 15rem);
+    padding: 6% 4%;
+  }
+
+  .showcase-glow {
+    position: absolute;
+    inset: 4% 0;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(196, 122, 52, 0.28), rgba(196, 122, 52, 0));
+    filter: blur(22px);
+  }
+
+  .showcase-cup {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 26px 26px rgba(70, 36, 12, 0.16));
+    animation: cup-in 0.9s var(--ease) both;
+  }
+
+  .showcase-bean {
+    position: absolute;
+    width: var(--size);
+    height: auto;
+    transform: rotate(var(--turn));
+    filter: drop-shadow(0 10px 12px rgba(70, 36, 12, 0.22)) blur(var(--blur, 0));
+    animation: bean-float var(--pace) ease-in-out var(--delay) infinite alternate;
+  }
+
+  .bean-a {
+    --size: clamp(2rem, 6vw, 3.4rem);
+    --turn: -28deg;
+    --pace: 5.5s;
+    --delay: 0s;
+    top: 0;
+    left: -4%;
+  }
+
+  .bean-b {
+    --size: clamp(1.5rem, 4.4vw, 2.4rem);
+    --turn: 38deg;
+    --pace: 6.5s;
+    --delay: -2s;
+    --blur: 1px;
+    top: -6%;
+    right: 8%;
+  }
+
+  .bean-c {
+    --size: clamp(1.8rem, 5vw, 2.8rem);
+    --turn: 74deg;
+    --pace: 6s;
+    --delay: -1s;
+    bottom: 0;
+    right: -6%;
+  }
+
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    letter-spacing: -0.03em;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  .checkout-sub {
+    color: var(--text-soft);
+    font-size: 0.95rem;
+  }
+
+  .showcase-copy {
+    display: grid;
+    gap: 0.6rem;
+    justify-items: center;
+  }
+
+  .checkout-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.25rem 0.75rem;
+    margin-top: 0.4rem;
+  }
+
+  .checkout-price strong {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 2.6rem);
+    letter-spacing: -0.03em;
+    color: #8a4b1c;
+  }
+
+  .checkout-price span {
+    color: var(--text-mute);
+    font-size: 0.88rem;
+  }
+
+  .checkout-count {
+    color: var(--text-mute);
+    font-size: 0.85rem;
+  }
+
+  .checkout-count:has([hidden]) {
+    display: none;
+  }
+
+  .checkout-perks {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    order: 1;
+  }
+
+  .checkout-perks li {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    gap: 0.6rem;
+    align-items: center;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .checkout-perks svg {
+    box-sizing: content-box;
+    padding: 0.25rem;
+    border-radius: 50%;
+    background: rgba(var(--brand-rgb), 0.1);
+    color: var(--brand);
+  }
+
+  .checkout-card {
+    display: grid;
+    gap: 1.75rem;
+    padding: clamp(1.25rem, 4vw, 2.25rem);
+  }
+
+  .checkout-form {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .checkout-methods {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0.3rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--bg-raised);
+    box-shadow: inset 0 1px 2px rgba(17, 17, 22, 0.06);
+  }
+
+  .checkout-methods::before {
+    content: "";
+    position: absolute;
+    top: 0.3rem;
+    bottom: 0.3rem;
+    left: 0.3rem;
+    width: calc(50% - 0.475rem);
+    border-radius: 999px;
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+    transition: translate 0.45s var(--ease);
+  }
+
+  .checkout-methods:has(input[value="card"]:checked)::before {
+    translate: calc(100% + 0.35rem) 0;
+  }
+
+  .checkout-methods label {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .checkout-methods input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .checkout-methods span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.65rem;
+    border-radius: 999px;
+    font-weight: 600;
+    color: var(--text-soft);
+    transition: color 0.25s var(--ease);
+  }
+
+  .checkout-methods input:checked + span {
+    color: var(--text);
+  }
+
+  .checkout-methods input:checked + span svg {
+    color: var(--brand);
+  }
+
+  .checkout-methods input:focus-visible + span {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
+
+  .checkout-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .checkout-card-fields:not([hidden]) {
+    animation: fields-in 0.45s var(--ease);
+  }
+
+  .field {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .field--wide {
+    grid-column: 1 / -1;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 0.8rem 0.95rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.78);
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text);
+    transition:
+      border-color 0.2s var(--ease),
+      box-shadow 0.25s var(--ease),
+      background 0.2s var(--ease);
+  }
+
+  .field input:hover {
+    background: var(--surface);
+  }
+
+  .field input:focus {
+    outline: none;
+    border-color: var(--brand);
+    background: var(--surface);
+    box-shadow:
+      0 0 0 4px rgba(var(--brand-rgb), 0.14),
+      0 8px 24px -8px rgba(var(--brand-rgb), 0.35);
+  }
+
+  .field input[aria-invalid="true"] {
+    border-color: #dc2626;
+  }
+
+  .field small,
+  .checkout-secure {
+    color: var(--text-mute);
+    font-size: 0.8rem;
+    font-weight: 400;
+  }
+
+  .checkout-legal {
+    margin: 0.85rem 0 0;
+    color: var(--text-soft);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .checkout-legal a {
+    color: var(--text);
+    text-underline-offset: 0.18em;
+  }
+
+  .checkout-error {
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius);
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 0.9rem;
+  }
+
+  .checkout-submit {
+    justify-content: center;
+    width: 100%;
+    padding-block: 0.95rem;
+  }
+
+  .checkout-submit:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .checkout-pix,
+  .checkout-paid {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .pix-frame {
+    --corner: linear-gradient(var(--brand), var(--brand));
+    position: relative;
+    width: min(16.5rem, 100%);
+    padding: 0.75rem;
+    background:
+      var(--corner) top left / 1.75rem 3px no-repeat,
+      var(--corner) top left / 3px 1.75rem no-repeat,
+      var(--corner) top right / 1.75rem 3px no-repeat,
+      var(--corner) top right / 3px 1.75rem no-repeat,
+      var(--corner) bottom left / 1.75rem 3px no-repeat,
+      var(--corner) bottom left / 3px 1.75rem no-repeat,
+      var(--corner) bottom right / 1.75rem 3px no-repeat,
+      var(--corner) bottom right / 3px 1.75rem no-repeat;
+  }
+
+  .pix-qr {
+    padding: 0.9rem;
+    border-radius: var(--radius-lg);
+    background: #fff;
+    box-shadow: var(--shadow-md);
+  }
+
+  .pix-qr :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .pix-scan {
+    position: absolute;
+    inset: 0.75rem;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    pointer-events: none;
+  }
+
+  .pix-scan::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(var(--brand-rgb), 0) 0%,
+      rgba(var(--brand-rgb), 0.12) 7%,
+      rgba(var(--brand-rgb), 0.7) 8%,
+      rgba(var(--brand-rgb), 0) 8.6%
+    );
+    animation: pix-scan 2.6s ease-in-out infinite alternate;
+  }
+
+  .checkout-pix:has([data-pix-expired]:not([hidden])) .pix-scan {
+    display: none;
+  }
+
+  .pix-copy {
+    border: 1px solid rgba(255, 255, 255, 0.85);
+  }
+
+  .pix-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+  }
+
+  .pix-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--live);
+    animation: pix-pulse 1.4s ease-in-out infinite;
+  }
+
+  .pix-timer {
+    color: var(--text-mute);
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .pix-expired {
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+  }
+
+  .checkout-pending {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .paid-cup {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 50%;
+    color: var(--brand);
+  }
+
+  .paid-ring {
+    position: absolute;
+    inset: -2px;
+    border: 2px solid rgba(var(--brand-rgb), 0.45);
+    border-radius: 50%;
+    animation: paid-ring 1.8s var(--ease) infinite;
+  }
+
+  .checkout-paid:not([hidden]) {
+    animation: fields-in 0.6s var(--ease);
+  }
+
+  @keyframes bean-float {
+    to {
+      transform: translate3d(0, -0.6rem, 0) rotate(calc(var(--turn) + 10deg));
+    }
+  }
+
+  @keyframes cup-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.96);
+    }
+  }
+
+  @keyframes fields-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @keyframes pix-scan {
+    from {
+      transform: translateY(-8%);
+    }
+
+    to {
+      transform: translateY(92%);
+    }
+  }
+
+  @keyframes pix-pulse {
+    50% {
+      opacity: 0.35;
+      transform: scale(0.8);
+    }
+  }
+
+  @keyframes paid-ring {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    to {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  @media (max-width: 520px) {
+    .checkout-fields {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .checkout {
+      padding-bottom: 6rem;
+    }
+
+    .checkout-stage {
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr);
+      grid-template-areas:
+        "showcase card"
+        "perks card";
+      gap: 1.5rem clamp(3rem, 6vw, 5rem);
+      max-width: none;
+      align-items: start;
+      margin-top: 2vh;
+    }
+
+    .checkout-showcase {
+      grid-area: showcase;
+      justify-items: start;
+      text-align: left;
+    }
+
+    .showcase-copy {
+      justify-items: start;
+    }
+
+    .checkout-price {
+      justify-content: start;
+    }
+
+    .showcase-art {
+      width: min(100%, 22rem);
+      margin-left: -1rem;
+    }
+
+    .checkout-perks {
+      grid-area: perks;
+      order: 0;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--line);
+    }
+
+    .checkout-card {
+      grid-area: card;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pix-dot,
+    .showcase-bean,
+    .showcase-cup,
+    .paid-ring,
+    .pix-scan::after,
+    .checkout-card-fields:not([hidden]),
+    .checkout-paid:not([hidden]) {
+      animation: none;
+    }
+
+    .checkout-methods::before,
+    .checkout-methods span,
+    .field input {
+      transition: none;
+    }
+  }
+</style>

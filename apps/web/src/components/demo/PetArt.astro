@@ -1,0 +1,104 @@
+<svg width="0" height="0" class="art-defs" aria-hidden="true">
+  <defs>
+    <radialGradient id="pet-bg" cx="0.5" cy="0.4" r="0.7">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#ece4ff" />
+    </radialGradient>
+    <radialGradient id="pet-floor" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#2a1d48" stop-opacity="0.25" />
+      <stop offset="1" stop-color="#2a1d48" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="pet-violet" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9a6bff" />
+      <stop offset="1" stop-color="#5317d6" />
+    </linearGradient>
+    <linearGradient id="pet-lime" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8ff8a" />
+      <stop offset="1" stop-color="#a9d40f" />
+    </linearGradient>
+    <linearGradient id="pet-wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8a5a35" />
+      <stop offset="0.5" stop-color="#b98457" />
+      <stop offset="1" stop-color="#6e4325" />
+    </linearGradient>
+    <linearGradient id="sofa-top" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3542" />
+      <stop offset="1" stop-color="#18151d" />
+    </linearGradient>
+    <linearGradient id="sofa-seat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d2933" />
+      <stop offset="1" stop-color="#121016" />
+    </linearGradient>
+
+    <symbol id="sofa" viewBox="0 0 600 500">
+      <rect width="600" height="500" fill="#ede7ff" />
+      <rect y="0" width="600" height="300" fill="#f5f1ff" />
+      <ellipse cx="300" cy="440" rx="270" ry="22" fill="#2a1d48" opacity="0.2" />
+      <rect x="60" y="130" width="480" height="170" rx="40" fill="url(#sofa-top)" />
+      <rect x="30" y="230" width="110" height="190" rx="42" fill="url(#sofa-top)" />
+      <rect x="460" y="230" width="110" height="190" rx="42" fill="url(#sofa-top)" />
+      <rect x="110" y="270" width="190" height="130" rx="30" fill="url(#sofa-seat)" />
+      <rect x="300" y="270" width="190" height="130" rx="30" fill="url(#sofa-seat)" />
+      <path d="M300 280v110" stroke="#000" stroke-opacity="0.35" stroke-width="3" />
+      <rect x="90" y="418" width="24" height="28" rx="6" fill="#6b4a2d" />
+      <rect x="486" y="418" width="24" height="28" rx="6" fill="#6b4a2d" />
+      <path d="M100 160c80-20 320-20 400 0" stroke="#fff" stroke-opacity="0.07" stroke-width="16" fill="none" />
+    </symbol>
+
+    <symbol id="art-rolo" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="url(#pet-bg)" />
+      <ellipse cx="100" cy="168" rx="70" ry="9" fill="url(#pet-floor)" />
+      <rect x="34" y="70" width="132" height="62" rx="31" fill="url(#pet-violet)" />
+      <path d="M44 86h112M44 101h112M44 116h112" stroke="#fff" stroke-opacity="0.25" stroke-width="3" />
+      <rect x="88" y="128" width="24" height="44" rx="12" fill="#15101f" />
+      <rect x="70" y="60" width="60" height="16" rx="8" fill="url(#pet-lime)" />
+      <path d="M46 78c20-10 90-10 108 0" stroke="#fff" stroke-opacity="0.5" stroke-width="4" fill="none" stroke-linecap="round" />
+    </symbol>
+    <symbol id="art-luva" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="url(#pet-bg)" />
+      <ellipse cx="100" cy="174" rx="64" ry="8" fill="url(#pet-floor)" />
+      <path d="M60 166V92c0-10 14-10 14 0V70c0-10 14-10 14 0V62c0-10 14-10 14 0v8c0-10 14-10 14 0v40l10-14c8-10 22 0 16 10l-24 40v20Z" fill="url(#pet-violet)" />
+      <g fill="#d7ff3a">
+        {[0, 1, 2, 3, 4].flatMap((row) => [0, 1, 2, 3].map((column) => <circle cx={72 + column * 12} cy={108 + row * 11} r="3" />))}
+      </g>
+      <rect x="58" y="160" width="74" height="12" rx="5" fill="#15101f" />
+    </symbol>
+    <symbol id="art-coletor" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="url(#pet-bg)" />
+      <ellipse cx="100" cy="172" rx="70" ry="8" fill="url(#pet-floor)" />
+      <g transform="translate(70 104)">
+        <circle r="42" fill="url(#pet-lime)" />
+        <path d="M-36-12c20 8 52 8 72 0M-38 6c22 8 54 8 76 0M-30 22c18 6 42 6 60 0" stroke="#7e9e08" stroke-width="3" fill="none" />
+      </g>
+      <g transform="translate(132 120)">
+        <circle r="32" fill="url(#pet-violet)" />
+        <path d="M-26-8c14 6 38 6 52 0M-28 6c16 6 40 6 56 0" stroke="#fff" stroke-opacity="0.35" stroke-width="3" fill="none" />
+      </g>
+    </symbol>
+    <symbol id="art-osso" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="url(#pet-bg)" />
+      <ellipse cx="100" cy="166" rx="74" ry="8" fill="url(#pet-floor)" />
+      <path d="M52 82a18 18 0 1 1 22-22l52 52a18 18 0 1 1 22 22 18 18 0 1 1-22 22L74 104a18 18 0 1 1-22-22Z" fill="#f4ecdc" stroke="#d8c7a8" stroke-width="3" />
+      <path d="M80 82l40 40" stroke="#c9b48e" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 10" />
+    </symbol>
+    <symbol id="art-madeira" viewBox="0 0 200 200">
+      <rect width="200" height="200" fill="url(#pet-bg)" />
+      <ellipse cx="100" cy="166" rx="74" ry="8" fill="url(#pet-floor)" />
+      <g transform="rotate(-28 100 110)">
+        <rect x="26" y="96" width="148" height="30" rx="15" fill="url(#pet-wood)" />
+        <ellipse cx="174" cy="111" rx="9" ry="15" fill="#d6aa7c" />
+        <ellipse cx="174" cy="111" rx="4" ry="8" fill="#a8774a" />
+        <path d="M50 104c30 4 60-4 100 2M58 118c30 3 50-3 90 1" stroke="#5a361c" stroke-opacity="0.45" stroke-width="2" fill="none" />
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<style>
+  .art-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+</style>

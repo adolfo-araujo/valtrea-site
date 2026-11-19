@@ -1,0 +1,8 @@
+Fotos opcionais da demonstração de corrida. Se um destes arquivos existir aqui, ele substitui a ilustração automaticamente:
+
+hero.jpg            foto que aparece dentro das letras "RUN MORE"
+equipe-1.jpg a equipe-4.jpg   fotos da galeria "Na linha de chegada"
+oculos.jpg, shorts-f.jpg, shorts-m.jpg, cinto.jpg            foto do produto
+oculos-uso.jpg, shorts-f-uso.jpg, shorts-m-uso.jpg, cinto-uso.jpg   foto de uso (aparece ao passar o mouse)
+
+Use fotos com licença comercial (Pexels, Unsplash) ou fotos suas.

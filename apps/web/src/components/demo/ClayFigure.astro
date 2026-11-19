@@ -1,0 +1,89 @@
+---
+interface Props {
+  pose: "pull" | "lift" | "sit" | "wave";
+  flip?: boolean;
+  tone?: string;
+  className?: string;
+}
+
+const { pose, flip = false, tone = "#ff7a2f", className = "" } = Astro.props;
+const uid = `clay-${pose}-${flip ? "l" : "r"}-${tone.replace("#", "")}`;
+
+const poses = {
+  pull: {
+    tilt: -10,
+    arms: ["M118 128 C 150 128, 168 122, 188 116", "M110 140 C 146 146, 170 138, 190 130"],
+    legs: ["M88 196 C 78 220, 66 236, 52 246", "M112 196 C 118 222, 120 238, 128 248"],
+    phone: false,
+  },
+  lift: {
+    tilt: 4,
+    arms: ["M74 128 C 50 112, 42 84, 48 50", "M126 128 C 150 112, 158 84, 152 50"],
+    legs: ["M88 198 C 86 222, 84 238, 80 250", "M112 198 C 114 222, 116 238, 120 250"],
+    phone: false,
+  },
+  sit: {
+    tilt: 0,
+    arms: ["M80 134 C 82 158, 92 168, 104 166", "M120 134 C 122 156, 116 166, 106 166"],
+    legs: ["M86 196 C 112 204, 138 206, 150 220", "M110 198 C 136 206, 160 210, 170 226"],
+    phone: true,
+  },
+  wave: {
+    tilt: 0,
+    arms: ["M80 128 C 64 146, 62 168, 66 186", "M120 126 C 142 110, 150 86, 152 62"],
+    legs: ["M88 198 C 86 222, 84 238, 80 250", "M112 198 C 114 222, 116 238, 120 250"],
+    phone: false,
+  },
+} as const;
+const shape = poses[pose];
+---
+
+<svg class:list={["clay", className]} viewBox="0 0 200 260" aria-hidden="true">
+  <defs>
+    <radialGradient id={`${uid}-skin`} cx="0.36" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.55" />
+      <stop offset="0.18" stop-color={tone} stop-opacity="0.95" />
+      <stop offset="0.75" stop-color={tone} />
+      <stop offset="1" stop-color="#000" stop-opacity="0.35" />
+    </radialGradient>
+    <radialGradient id={`${uid}-ground`} cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#000" stop-opacity="0.28" />
+      <stop offset="1" stop-color="#000" stop-opacity="0" />
+    </radialGradient>
+    <filter id={`${uid}-soft`} x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="7" result="noise" />
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.08 0" result="grain" />
+      <feComposite in="grain" in2="SourceGraphic" operator="in" result="grainy" />
+      <feMerge><feMergeNode in="SourceGraphic" /><feMergeNode in="grainy" /></feMerge>
+    </filter>
+  </defs>
+  <ellipse cx="100" cy="252" rx="62" ry="7" fill={`url(#${uid}-ground)`} />
+  <g transform={`${flip ? "translate(200 0) scale(-1 1) " : ""}rotate(${shape.tilt} 100 200)`} filter={`url(#${uid}-soft)`}>
+    <g fill="none" stroke-linecap="round">
+      {shape.legs.map((path) => <path d={path} stroke={tone} stroke-width="24" />)}
+      {shape.legs.map((path) => <path d={path} stroke="#000" stroke-opacity="0.18" stroke-width="24" transform="translate(2 3)" style="mix-blend-mode: multiply" />)}
+    </g>
+    <ellipse cx="100" cy="156" rx="40" ry="52" fill={`url(#${uid}-skin)`} />
+    <circle cx="100" cy="82" r="40" fill={`url(#${uid}-skin)`} />
+    <ellipse cx="86" cy="80" rx="5" ry="8" fill="#1b1410" />
+    <ellipse cx="112" cy="80" rx="5" ry="8" fill="#1b1410" />
+    <circle cx="87.5" cy="77" r="1.8" fill="#fff" />
+    <circle cx="113.5" cy="77" r="1.8" fill="#fff" />
+    <path d="M92 98 Q 100 104 108 98" stroke="#1b1410" stroke-width="3" fill="none" stroke-linecap="round" />
+    <ellipse cx="74" cy="96" rx="6" ry="3.5" fill="#ff4d6d" opacity="0.35" />
+    <ellipse cx="126" cy="96" rx="6" ry="3.5" fill="#ff4d6d" opacity="0.35" />
+    <g fill="none" stroke-linecap="round">
+      {shape.arms.map((path) => <path d={path} stroke={tone} stroke-width="20" />)}
+      {shape.arms.map((path) => <path d={path} stroke="#fff" stroke-opacity="0.22" stroke-width="6" transform="translate(-2 -4)" />)}
+    </g>
+    {shape.phone && <rect x="92" y="150" width="26" height="40" rx="5" fill="#1b1d22" transform="rotate(-14 105 170)" />}
+    {shape.phone && <rect x="96" y="154" width="18" height="30" rx="3" fill="#7fb3ff" transform="rotate(-14 105 170)" />}
+  </g>
+</svg>
+
+<style>
+  .clay {
+    display: block;
+    overflow: visible;
+  }
+</style>

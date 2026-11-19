@@ -1,0 +1,325 @@
+---
+import { finds } from "../../config/demo-achados";
+import DemoFrame from "./DemoFrame.astro";
+import PetArt from "./PetArt.astro";
+import RunArt from "./RunArt.astro";
+
+interface Props {
+  title: string;
+  path: string;
+}
+
+const { title, path } = Astro.props;
+const store = {
+  products: finds.map(({ id, name, price }) => ({ id, name, price })),
+  modes: ["envio"] as "envio"[],
+  shipping: 0,
+  freeFrom: 0,
+  payments: ["Pix", "Cartão em até 12x"],
+  bagLabel: "Carrinho",
+};
+---
+
+<DemoFrame brand="Caixote" title={title} description="Loja de achadinhos de demonstração feita pela Valtrea: curadoria, frete grátis e rastreio de pedido." path={path} themeColor="#ffffff" bodyClass="achados" store={store}>
+  <header class="k-nav" data-k-nav>
+    <div class="k-nav-pill">
+      <a class="k-logo" href="/demo/achados" aria-label="Caixote">caixote<span>.</span></a>
+      <nav class="k-links" aria-label="Atalhos">
+        <a href="/demo/achados#caixas">Caixas</a>
+        <a href="/demo/achados#rota">Como funciona</a>
+        <a href="/demo/achados#rastreio">Rastrear pedido</a>
+      </nav>
+      <button type="button" class="k-cart" data-bag-open>Carrinho <b data-bag-count hidden>0</b></button>
+    </div>
+    <span class="k-progress" data-k-progress></span>
+  </header>
+  <div class="k-main" id="conteudo">
+    <slot />
+  </div>
+  <footer class="k-foot">
+    <div class="k-wrap">
+      <p class="k-foot-mark" aria-hidden="true">caixote<span>.</span></p>
+      <div class="k-foot-cols">
+        <p class="k-foot-slogan">Uma caixa te aguarda</p>
+        <div>
+          <p class="k-foot-head">Ajuda</p>
+          <a href="/demo/achados#rastreio">Rastrear pedido</a>
+          <a href="/demo/achados#rota">Política de frete</a>
+          <a href="/demo/achados#combinado">Trocas e reembolso</a>
+        </div>
+        <div>
+          <p class="k-foot-head">Atendimento</p>
+          <a href="/contato">Falar com a loja</a>
+          <span>Marca fictícia de demonstração</span>
+        </div>
+      </div>
+      <p class="k-copy">© {new Date().getFullYear()} Caixote · marca fictícia</p>
+    </div>
+  </footer>
+  <RunArt />
+  <PetArt />
+</DemoFrame>
+
+<script>
+  const nav = document.querySelector<HTMLElement>("[data-k-nav]");
+  const progress = document.querySelector<HTMLElement>("[data-k-progress]");
+  const ribbon = document.querySelector<HTMLElement>(".demo-ribbon");
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const y = window.scrollY;
+    nav?.classList.toggle("is-scrolled", y > 12);
+    nav?.style.setProperty("--ribbon", `${Math.max(0, (ribbon?.offsetHeight ?? 0) - y)}px`);
+    if (progress) {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      progress.style.transform = `scaleX(${max > 0 ? Math.min(y / max, 1) : 0})`;
+    }
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    },
+    { passive: true },
+  );
+  update();
+
+  const revealed = document.querySelectorAll<HTMLElement>(".reveal");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+    );
+    revealed.forEach((element) => observer.observe(element));
+  } else {
+    revealed.forEach((element) => element.classList.add("is-visible"));
+  }
+</script>
+
+<style is:global>
+  @import url("https://fonts.googleapis.com/css2?family=Archivo:wght@700;800;900&family=Poppins:wght@400;500;600&display=swap");
+
+  body.achados {
+    --d-bg: #ffffff;
+    --d-surface: #ffffff;
+    --d-ink: #000000;
+    --d-mute: #5c5c5c;
+    --d-line: #e4e4e1;
+    --d-accent: #0048ff;
+    --d-accent-ink: #ffffff;
+    --k-blue: #0048ff;
+    --k-blue-deep: #0036c2;
+    --k-gray: #9a9a9a;
+    --k-gray-ink: #5c5c5c;
+    --k-line: #e4e4e1;
+    --k-paper-2: #f4f4f2;
+    --font-display: "Archivo", sans-serif;
+    background: #fff;
+    color: #000;
+    font-family: "Poppins", var(--font-sans);
+  }
+
+  .achados .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.8s var(--ease),
+      transform 0.8s var(--ease);
+  }
+
+  .achados .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .k-wrap {
+    width: min(100% - 2 * clamp(1rem, 4vw, 1.5rem), 1180px);
+    margin-inline: auto;
+  }
+
+  .k-nav {
+    position: fixed;
+    inset: var(--ribbon, 2rem) 0 auto;
+    z-index: 100;
+    padding: 0.75rem clamp(0.75rem, 2vw, 1.25rem) 0;
+    pointer-events: none;
+  }
+
+  .k-nav.is-scrolled {
+    top: 0;
+  }
+
+  .k-nav-pill {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: 76rem;
+    height: 3.5rem;
+    margin-inline: auto;
+    padding: 0 0.5rem 0 1.125rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    pointer-events: auto;
+    transition:
+      background-color 0.35s var(--ease),
+      border-color 0.35s var(--ease),
+      box-shadow 0.35s var(--ease);
+  }
+
+  .k-nav.is-scrolled .k-nav-pill {
+    border-color: #e4e4e1;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 30px -14px rgba(0, 0, 0, 0.25);
+  }
+
+  .k-logo {
+    color: #000;
+    font: 900 1.6rem/1 "Archivo", sans-serif;
+    letter-spacing: -0.06em;
+    text-decoration: none;
+  }
+
+  .k-logo span {
+    color: #0048ff;
+  }
+
+  .k-links {
+    display: none;
+    gap: 0.25rem;
+  }
+
+  .k-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    padding-inline: 0.9rem;
+    border-radius: 999px;
+    color: #000;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+  }
+
+  .k-links a:hover {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .k-cart {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding-inline: 1.15rem;
+    border: 0;
+    border-radius: 999px;
+    background: #000;
+    color: #fff;
+    font: 600 0.9375rem/1 "Poppins", sans-serif;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .k-cart:hover {
+    background: #0048ff;
+  }
+
+  .k-cart b {
+    display: grid;
+    place-items: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    background: #0048ff;
+    font-size: 0.75rem;
+  }
+
+  .k-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #0048ff;
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  .k-foot {
+    padding-block: clamp(3.5rem, 8vw, 5rem) 2rem;
+    border-top: 1px solid #e4e4e1;
+    color: #5c5c5c;
+    font-size: 0.9375rem;
+  }
+
+  .k-foot-mark {
+    margin: 0;
+    color: #000;
+    font: 900 clamp(4rem, 18vw, 11rem)/0.85 "Archivo", sans-serif;
+    letter-spacing: -0.065em;
+  }
+
+  .k-foot-mark span {
+    color: #0048ff;
+  }
+
+  .k-foot-cols {
+    display: grid;
+    gap: 2rem;
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .k-foot-cols > div {
+    display: grid;
+    align-content: start;
+  }
+
+  .k-foot-slogan {
+    margin: 0;
+    color: #000;
+    font: 700 1.375rem/1.2 "Archivo", sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .k-foot-head {
+    margin: 0 0 0.5rem;
+    color: #000;
+    font-weight: 600;
+  }
+
+  .k-foot-cols a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .k-foot-cols a:hover {
+    color: #0048ff;
+  }
+
+  .k-copy {
+    margin: 2.5rem 0 0;
+    font-size: 0.85rem;
+  }
+
+  @media (min-width: 900px) {
+    .k-links {
+      display: flex;
+    }
+
+    .k-foot-cols {
+      grid-template-columns: 1.4fr 1fr 1fr;
+    }
+  }
+</style>

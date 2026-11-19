@@ -1,0 +1,1407 @@
+---
+import DemoFrame from "../../components/demo/DemoFrame.astro";
+import { company, hasWhatsapp } from "../../config/company";
+
+const client = "Recanto";
+const message = `Olá! Vi a proposta do ${client} Pet Hotel e quero fechar.`;
+const whatsappHref = hasWhatsapp() ? `https://wa.me/${company.whatsapp}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+const emailHref = `mailto:${company.email}?subject=${encodeURIComponent(`Proposta de site · ${client}`)}&body=${encodeURIComponent(`Olá,\n\nVi a proposta do ${client} Pet Hotel e quero fechar.\n\n`)}`;
+const paws = Array.from({ length: 23 }, (_, index) => {
+  const up = index % 2 === 0;
+  const x = index * 131 + (index % 3) * 9;
+  const y = up ? 100 + ((index * 7) % 12) : 132 + ((index * 5) % 16);
+  const angle = (up ? -1 : 1) * (6 + ((index * 3) % 8));
+  const scale = 0.85 + ((index * 13) % 15) / 100;
+  return { x, y, angle, scale, delay: (index * 0.115).toFixed(3) };
+});
+---
+
+<DemoFrame
+  brand={`${client} Pet Hotel`}
+  title={`${client} · proposta de presença digital (demonstração)`}
+  description="Proposta comercial em formato de página, de demonstração, feita pela Valtrea."
+  path="/demo/proposta"
+  themeColor="#2F0493"
+  bodyClass="proposta"
+>
+  <header class="x-hero">
+    <div class="x-grid" aria-hidden="true"></div>
+    <div class="x-grain" aria-hidden="true"></div>
+    <div class="x-hero-wide">
+      <h1 class="x-poster">
+        <span class="x-pl x-pl-1">Nossa equipe</span>
+        <span class="x-pl x-pl-2">apresenta uma</span>
+        <span class="x-pl x-pl-3">nova <mark class="x-mark">presença</mark></span>
+        <span class="x-pl x-pl-4">digital.</span>
+      </h1>
+      <p class="x-hero-sub">Profissional, forte, para qualquer um em qualquer lugar.</p>
+      <a class="x-btn x-btn--invert x-btn--lg x-hero-cta" href="#proposta">Ver a proposta <span class="x-arrow">↓</span></a>
+    </div>
+    <div class="x-trail" aria-hidden="true">
+      <svg viewBox="0 0 3000 200" preserveAspectRatio="xMidYMax slice">
+        <defs>
+          <g id="x-paw">
+            <ellipse cx="22" cy="36" rx="12" ry="9.5"></ellipse>
+            <ellipse cx="6.5" cy="22" rx="4.6" ry="6" transform="rotate(-24 6.5 22)"></ellipse>
+            <ellipse cx="15.5" cy="13.5" rx="4.8" ry="6.4" transform="rotate(-9 15.5 13.5)"></ellipse>
+            <ellipse cx="28.5" cy="13.5" rx="4.8" ry="6.4" transform="rotate(9 28.5 13.5)"></ellipse>
+            <ellipse cx="37.5" cy="22" rx="4.6" ry="6" transform="rotate(24 37.5 22)"></ellipse>
+          </g>
+        </defs>
+        {
+          paws.map((paw) => (
+            <g transform={`translate(${paw.x},${paw.y}) rotate(${paw.angle}) scale(${paw.scale}) translate(-22,-27)`}>
+              <g class="x-paw" style={`--d: ${paw.delay}s`}>
+                <use href="#x-paw" />
+              </g>
+            </g>
+          ))
+        }
+      </svg>
+    </div>
+  </header>
+
+  <div id="proposta">
+    <section class="x-band x-breath x-band--fig-right" aria-labelledby="x-guarantee">
+      <div class="x-band-bg"></div>
+      <div class="x-band-wrap">
+        <div class="x-band-text">
+          <h2 class="x-poster-h x-reveal" id="x-guarantee">Garantia anual contra imprevistos.</h2>
+          <p class="x-breath-line x-reveal">Houve algo que não gostou ou que não funcionou como previsto? Corrigimos em até 48&nbsp;horas.</p>
+        </div>
+      </div>
+      <div class="x-band-fig">
+        <div class="x-clock" data-x-in>
+          <svg class="x-clock-svg" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="x-clock-track" cx="100" cy="100" r="86"></circle>
+            <circle class="x-clock-arc" cx="100" cy="100" r="86"></circle>
+          </svg>
+          <span class="x-clock-num">48<i>h</i></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="x-band x-note x-band--fig-left" aria-labelledby="x-seo">
+      <div class="x-band-bg"></div>
+      <div class="x-band-wrap">
+        <div class="x-band-text">
+          <h2 class="x-note-h x-reveal" id="x-seo">Buscas SEO.</h2>
+          <p class="x-note-lead x-reveal">Aparecendo no Google <em>e</em> nas IAs, onde as pessoas realmente perguntam hoje.</p>
+        </div>
+      </div>
+      <div class="x-band-fig">
+        <div class="x-search" data-x-in data-x-search>
+          <div class="x-search-bar">
+            <svg class="x-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+            <span class="x-search-text" data-type="pet shop recanto"></span><span class="x-caret"></span>
+          </div>
+          <ol class="x-results">
+            <li class="x-sr x-sr-top">
+              <span class="x-sr-badge">1</span>
+              <span class="x-sr-body"><b><span class="x-fav" aria-hidden="true">R</span>Recanto Pet Hotel</b><i></i></span>
+            </li>
+            <li class="x-sr"><span class="x-sr-badge">2</span><span class="x-sr-body"><b></b><i></i></span></li>
+            <li class="x-sr"><span class="x-sr-badge">3</span><span class="x-sr-body"><b></b><i></i></span></li>
+          </ol>
+          <div class="x-search-ai"><span class="x-ai-dot"></span>Também indexado para respostas de IA</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="x-band x-world x-band--fig-right" aria-labelledby="x-domain">
+      <div class="x-band-bg"></div>
+      <div class="x-band-wrap">
+        <div class="x-band-text">
+          <h2 class="x-world-h x-reveal" id="x-domain">Domínio hospedado em todo o mundo.</h2>
+          <p class="x-world-price x-reveal"><b>R$&nbsp;60</b><span>anualmente</span></p>
+          <p class="x-world-note x-reveal">Um endereço só seu, no ar 24&nbsp;horas, carregando rápido de qualquer país.</p>
+        </div>
+      </div>
+      <div class="x-band-fig">
+        <div class="x-orb" aria-hidden="true">
+          <svg viewBox="0 0 400 400">
+            <circle class="x-orb-ring" cx="200" cy="200" r="150"></circle>
+            <ellipse class="x-orb-ring x-orb-thin" cx="200" cy="200" rx="150" ry="56"></ellipse>
+            <ellipse class="x-orb-ring x-orb-thin" cx="200" cy="200" rx="150" ry="112"></ellipse>
+            <ellipse class="x-orb-ring x-orb-thin" cx="200" cy="200" rx="56" ry="150"></ellipse>
+            <ellipse class="x-orb-ring x-orb-thin" cx="200" cy="200" rx="112" ry="150"></ellipse>
+            <g class="x-orb-pins">
+              <circle cx="128" cy="146" r="4"></circle>
+              <circle cx="262" cy="176" r="4"></circle>
+              <circle cx="196" cy="256" r="4"></circle>
+              <circle cx="298" cy="242" r="4"></circle>
+              <circle cx="112" cy="238" r="4"></circle>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <section class="x-band x-cta x-band--fig-left" id="fechar" aria-labelledby="x-price">
+      <div class="x-band-bg"></div>
+      <div class="x-band-wrap">
+        <div class="x-band-text">
+          <p class="x-price x-reveal" data-x-price>
+            <span class="x-price-pre">menos de</span>
+            <span class="x-price-big">R$&nbsp;<span class="x-price-num" data-from="2500" data-to="1500"><i>1</i>.<i>5</i><i>0</i><i>0</i></span></span>
+          </p>
+          <h2 class="x-cta-h x-reveal" id="x-price">E entrega entre hoje e amanhã.</h2>
+          <a class="x-btn x-btn--solid x-btn--lg x-reveal" href={whatsappHref} target="_blank" rel="noopener" data-x-contact>Fechar a proposta <span class="x-arrow">→</span></a>
+          <p class="x-cta-fine x-reveal">Site completo, responsivo, no ar em até 24&nbsp;horas úteis.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="x-foot">
+    <div class="x-foot-inner">
+      <p class="x-foot-thanks x-reveal">Nossa equipe profissional<br />agradece o contato.</p>
+      <p class="x-foot-meta"><span>{client.toUpperCase()}</span><span>© {new Date().getFullYear()}</span></p>
+    </div>
+  </footer>
+
+  <div class="x-dock" data-x-dock>
+    <a class="x-btn x-btn--solid x-btn--sm" href={whatsappHref} target="_blank" rel="noopener" data-x-contact>Fechar a proposta</a>
+  </div>
+
+  <dialog class="x-pick" data-x-pick aria-labelledby="x-pick-title">
+    <div class="x-pick-card">
+      <button class="x-pick-close" type="button" data-x-pick-close aria-label="Fechar">×</button>
+      <h2 class="x-pick-title" id="x-pick-title">Como prefere falar com a gente?</h2>
+      <p class="x-pick-sub">Os dois caminhos chegam direto em nós.</p>
+      <a class="x-pick-option" href={whatsappHref} target="_blank" rel="noopener">
+        <span class="x-pick-text"><b>WhatsApp</b><i>Costuma ser respondido em minutos</i></span>
+        <span aria-hidden="true">→</span>
+      </a>
+      <a class="x-pick-option" href={emailHref}>
+        <span class="x-pick-text"><b>E-mail</b><i>{company.email}</i></span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </div>
+  </dialog>
+</DemoFrame>
+
+<script>
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const pick = document.querySelector<HTMLDialogElement>("[data-x-pick]");
+  let opener: HTMLElement | null = null;
+  if (pick && typeof pick.showModal === "function") {
+    document.querySelectorAll<HTMLAnchorElement>("[data-x-contact]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        opener = link;
+        pick.showModal();
+      });
+    });
+    pick.querySelectorAll(".x-pick-option, [data-x-pick-close]").forEach((element) => element.addEventListener("click", () => pick.close()));
+    pick.addEventListener("click", (event) => {
+      if (event.target === pick) pick.close();
+    });
+    pick.addEventListener("close", () => {
+      const target = opener;
+      opener = null;
+      if (target) requestAnimationFrame(() => target.focus());
+    });
+  }
+
+  const digits = (text: string) => [...text].map((char) => (char >= "0" && char <= "9" ? `<i>${char}</i>` : char)).join("");
+  const format = (value: number) => value.toLocaleString("pt-BR");
+
+  const type = (card: HTMLElement) => {
+    const out = card.querySelector<HTMLElement>(".x-search-text");
+    if (!out) return;
+    const full = out.dataset.type ?? "";
+    let index = 0;
+    const step = () => {
+      index += 1;
+      out.textContent = full.slice(0, index);
+      if (index < full.length) window.setTimeout(step, 62);
+      else card.classList.add("is-typed");
+    };
+    step();
+  };
+
+  const revealables = document.querySelectorAll<HTMLElement>(".x-reveal, [data-x-in]");
+  const priceNumber = document.querySelector<HTMLElement>(".x-price-num");
+  if (still || !("IntersectionObserver" in window)) {
+    revealables.forEach((element) => element.classList.add("is-in"));
+    const search = document.querySelector<HTMLElement>("[data-x-search]");
+    const out = search?.querySelector<HTMLElement>(".x-search-text");
+    if (search && out) {
+      out.textContent = out.dataset.type ?? "";
+      search.classList.add("is-typed");
+    }
+  } else {
+    if (priceNumber) priceNumber.innerHTML = digits(format(Number(priceNumber.dataset.from)));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const element = entry.target as HTMLElement;
+          element.classList.add("is-in");
+          observer.unobserve(element);
+          if (element.hasAttribute("data-x-search")) type(element);
+        }
+      },
+      { rootMargin: "0px 0px -12% 0px", threshold: 0.15 },
+    );
+    revealables.forEach((element) => observer.observe(element));
+
+    const priceBlock = priceNumber?.closest<HTMLElement>("[data-x-price]");
+    if (priceNumber && priceBlock) {
+      const from = Number(priceNumber.dataset.from);
+      const to = Number(priceNumber.dataset.to);
+      const countdown = new IntersectionObserver(
+        ([entry]) => {
+          if (!entry?.isIntersecting) return;
+          countdown.disconnect();
+          let start = 0;
+          const tick = (now: number) => {
+            if (!start) start = now;
+            const progress = Math.min((now - start) / 1900, 1);
+            const eased = 1 - (1 - progress) ** 3;
+            priceNumber.innerHTML = digits(format(progress < 1 ? Math.round(from + (to - from) * eased) : to));
+            if (progress < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        },
+        { rootMargin: "-20% 0px -20% 0px", threshold: 0.8 },
+      );
+      countdown.observe(priceBlock);
+    }
+  }
+
+  const dock = document.querySelector<HTMLElement>("[data-x-dock]");
+  const hero = document.querySelector<HTMLElement>(".x-hero");
+  const cta = document.querySelector<HTMLElement>(".x-cta");
+  if (dock && hero && cta && "IntersectionObserver" in window) {
+    let heroOut = false;
+    let ctaIn = false;
+    const sync = () => dock.classList.toggle("is-on", heroOut && !ctaIn);
+    new IntersectionObserver(([entry]) => {
+      heroOut = !(entry?.isIntersecting ?? true);
+      sync();
+    }).observe(hero);
+    new IntersectionObserver(
+      ([entry]) => {
+        ctaIn = entry?.isIntersecting ?? false;
+        sync();
+      },
+      { threshold: 0.15 },
+    ).observe(cta);
+  }
+</script>
+
+<style is:global>
+  body.proposta {
+    --d-bg: #000;
+    --d-surface: #0a0a0a;
+    --d-ink: #fff;
+    --d-mute: #9c9c9c;
+    --d-line: #1f1f1f;
+    --d-accent: #2f0493;
+    --d-accent-ink: #fff;
+    --x-purple: #2f0493;
+    --x-purple-deep: #24036f;
+    --x-purple-lit: #9a6bff;
+    background: #000;
+    color: #fff;
+    font-family: "Poppins", var(--font-sans);
+  }
+</style>
+
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800;900&display=swap");
+
+  .x-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.4rem;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition:
+      transform 0.35s var(--ease),
+      background-color 0.3s,
+      color 0.3s,
+      box-shadow 0.35s var(--ease);
+  }
+
+  .x-btn--invert {
+    background: #000;
+    color: #fff;
+  }
+
+  .x-btn--invert:hover {
+    box-shadow: 0 14px 40px -14px rgba(0, 0, 0, 0.75);
+    transform: translateY(-2px);
+  }
+
+  .x-btn--solid {
+    background: var(--x-purple);
+    color: #fff;
+  }
+
+  .x-btn--solid:hover {
+    background: var(--x-purple-deep);
+    box-shadow: 0 14px 40px -14px rgba(47, 4, 147, 0.9);
+    transform: translateY(-2px);
+  }
+
+  .x-btn--sm {
+    padding: 0.62rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .x-btn--lg {
+    padding: 1.1rem 2rem;
+    font-size: 1.05rem;
+  }
+
+  .x-arrow {
+    transition: transform 0.35s var(--ease);
+  }
+
+  .x-btn:hover .x-arrow {
+    transform: translateX(5px);
+  }
+
+  .x-hero-cta:hover .x-arrow {
+    transform: translateY(4px);
+  }
+
+  .x-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100svh;
+    padding: clamp(5rem, 11vh, 7rem) 0 clamp(7rem, 17vh, 10rem);
+    overflow: hidden;
+    background: var(--x-purple);
+    color: #fff;
+  }
+
+  .x-grid {
+    position: absolute;
+    top: -25%;
+    left: -25%;
+    width: 150%;
+    height: 150%;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 62% at 50% 40%, #000 12%, transparent 74%);
+    animation: x-drift 34s linear infinite;
+  }
+
+  .x-grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .x-hero-wide {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: clamp(1.5rem, 4vw, 3rem);
+    text-align: center;
+  }
+
+  .x-poster {
+    margin: 0;
+    font-size: min(clamp(2.9rem, 6.4vw, 5.2rem), 11vh, calc((100vw - 3rem) / 8));
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
+  }
+
+  .x-pl {
+    display: block;
+    white-space: nowrap;
+    animation: x-rise 0.9s var(--ease) both;
+  }
+
+  .x-pl-1 {
+    animation-delay: 0.06s;
+  }
+
+  .x-pl-2 {
+    animation-delay: 0.14s;
+  }
+
+  .x-pl-3 {
+    padding-bottom: 0.07em;
+    animation-delay: 0.22s;
+  }
+
+  .x-pl-4 {
+    animation-delay: 0.3s;
+  }
+
+  .x-mark {
+    position: relative;
+    z-index: 0;
+    display: inline-block;
+    margin: 0 -0.03em;
+    padding: 0 0.09em;
+    background: none;
+    color: #fff;
+    animation: x-ink 0s linear 1.35s forwards;
+  }
+
+  .x-mark::before {
+    content: "";
+    position: absolute;
+    inset: 0.1em -0.01em -0.055em;
+    z-index: -1;
+    background: #fff;
+    transform: scaleX(0);
+    transform-origin: left;
+    animation: x-draw 0.75s var(--ease) 0.95s forwards;
+  }
+
+  .x-hero-sub {
+    max-width: 30ch;
+    margin: clamp(1rem, 2.4vw, 1.6rem) auto 0;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: clamp(1.1rem, 2.3vw, 1.55rem);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.3;
+    animation: x-rise 0.9s var(--ease) 0.42s both;
+  }
+
+  .x-hero-cta {
+    align-self: center;
+    margin-top: clamp(1.6rem, 3.4vw, 2.4rem);
+    animation: x-rise 0.9s var(--ease) 0.54s both;
+  }
+
+  .x-trail {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    height: clamp(6.5rem, 18vh, 11rem);
+    pointer-events: none;
+  }
+
+  .x-trail svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    mask-image: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.35) 42%, #000 78%);
+  }
+
+  .x-paw {
+    fill: rgba(255, 255, 255, 0.26);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 72%;
+    animation: x-step 7s var(--ease) calc(1.15s + var(--d)) infinite;
+  }
+
+  .x-band {
+    position: relative;
+  }
+
+  .x-band-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .x-band-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .x-band-fig {
+    position: relative;
+    z-index: 3;
+    margin-top: clamp(2.2rem, 6vw, 3.2rem);
+  }
+
+  .x-band-text {
+    text-align: center;
+  }
+
+  .x-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.9s var(--ease),
+      transform 0.9s var(--ease);
+  }
+
+  .x-reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .x-breath {
+    padding-block: clamp(5rem, 12vw, 8rem) clamp(6rem, 14vw, 9rem);
+  }
+
+  .x-breath .x-band-bg {
+    background: #000;
+  }
+
+  .x-poster-h {
+    margin: 0;
+    font-size: clamp(2.4rem, 9vw, 6.5rem);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.92;
+  }
+
+  .x-breath-line {
+    max-width: 30ch;
+    margin: clamp(1rem, 3vw, 1.5rem) auto 0;
+    color: #9c9c9c;
+    font-size: clamp(1.05rem, 2.4vw, 1.6rem);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.35;
+  }
+
+  .x-clock {
+    position: relative;
+    width: clamp(140px, 26vw, 200px);
+    aspect-ratio: 1;
+    margin: 0 auto;
+  }
+
+  .x-clock::before {
+    content: "";
+    position: absolute;
+    inset: -38%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(154, 107, 255, 0.14), transparent 62%);
+    pointer-events: none;
+  }
+
+  .x-clock-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .x-clock-track {
+    fill: none;
+    stroke: #1f1f1f;
+    stroke-width: 6;
+  }
+
+  .x-clock-arc {
+    fill: none;
+    stroke: var(--x-purple-lit);
+    stroke-dasharray: 540;
+    stroke-dashoffset: 540;
+    stroke-linecap: round;
+    stroke-width: 6;
+    transition: stroke-dashoffset 1.6s var(--ease);
+  }
+
+  .x-clock.is-in .x-clock-arc {
+    stroke-dashoffset: 135;
+  }
+
+  .x-clock-num {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-auto-flow: column;
+    place-content: center;
+    align-items: baseline;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .x-clock-num i {
+    margin-left: 0.04em;
+    font-size: 0.42em;
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  .x-note {
+    padding-block: clamp(6.5rem, 15vw, 10rem) clamp(6rem, 14vw, 9rem);
+    color: #000;
+  }
+
+  .x-note .x-band-bg {
+    background: #fff;
+    clip-path: polygon(0 6%, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .x-note-h {
+    margin: 0;
+    font-size: clamp(2.2rem, 7vw, 4.6rem);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+  }
+
+  .x-note-lead {
+    max-width: 40ch;
+    margin: clamp(0.7rem, 1.6vw, 1rem) auto 0;
+    color: #242424;
+    font-size: clamp(1.05rem, 2.2vw, 1.5rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.35;
+  }
+
+  .x-note-lead em {
+    font-weight: 600;
+  }
+
+  .x-search {
+    max-width: 560px;
+    margin-inline: auto;
+    padding: clamp(0.9rem, 2.2vw, 1.2rem);
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    background: #fff;
+    box-shadow: 0 24px 60px -34px rgba(0, 0, 0, 0.35);
+    color: #000;
+    text-align: left;
+  }
+
+  .x-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid #e6e6e6;
+    border-radius: 999px;
+    font-size: clamp(0.9rem, 1.8vw, 1.02rem);
+  }
+
+  .x-search-icon {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    fill: none;
+    stroke: #7a7a7a;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .x-search-text {
+    font-weight: 500;
+    white-space: pre;
+  }
+
+  .x-caret {
+    display: inline-block;
+    width: 1.5px;
+    height: 1.05em;
+    background: #000;
+    animation: x-blink 1.05s steps(1) infinite;
+  }
+
+  .x-results {
+    display: grid;
+    gap: 0.85rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .x-sr {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity 0.6s var(--ease),
+      transform 0.6s var(--ease);
+  }
+
+  .x-search.is-typed .x-sr {
+    opacity: 1;
+    transform: none;
+  }
+
+  .x-search.is-typed .x-sr:nth-child(2) {
+    transition-delay: 0.18s;
+  }
+
+  .x-search.is-typed .x-sr:nth-child(3) {
+    transition-delay: 0.3s;
+  }
+
+  .x-sr-badge {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 2px;
+    background: #e6e6e6;
+    color: #7a7a7a;
+    font-size: 0.68rem;
+    font-weight: 700;
+  }
+
+  .x-sr-top .x-sr-badge {
+    background: var(--x-purple);
+    color: #fff;
+  }
+
+  .x-sr-body {
+    display: grid;
+    flex: 1;
+    gap: 0.4rem;
+  }
+
+  .x-sr-body b {
+    width: 44%;
+    height: 9px;
+    border-radius: 2px;
+    background: #e6e6e6;
+  }
+
+  .x-sr-body i {
+    width: 78%;
+    height: 7px;
+    border-radius: 2px;
+    background: #f1f1f1;
+  }
+
+  .x-sr-top .x-sr-body b {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: none;
+    font-size: clamp(0.92rem, 1.9vw, 1.05rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .x-sr-top .x-sr-body i {
+    width: 62%;
+    background: #e6e6e6;
+  }
+
+  .x-fav {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 50%;
+    background: var(--x-purple);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .x-search-ai {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.2rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid #e6e6e6;
+    color: #7a7a7a;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .x-ai-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--x-purple);
+    animation: x-pulse 2.2s var(--ease) infinite;
+  }
+
+  .x-world {
+    margin-top: -1px;
+    padding-block: clamp(6.5rem, 15vw, 10rem) clamp(6rem, 14vw, 9rem);
+  }
+
+  .x-world .x-band-bg {
+    background: #000;
+    clip-path: polygon(0 0, 100% 4%, 100% 100%, 0 100%);
+  }
+
+  .x-world-h {
+    margin: 0;
+    font-size: clamp(1.9rem, 5.4vw, 3.8rem);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+
+  .x-world-price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    margin: clamp(1.6rem, 4vw, 2.6rem) 0 0;
+  }
+
+  .x-world-price b {
+    font-size: clamp(3.4rem, 13vw, 8rem);
+    font-weight: 900;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+  }
+
+  .x-world-price span {
+    color: #7a7a7a;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .x-world-note {
+    max-width: 34ch;
+    margin: clamp(1.4rem, 3vw, 2rem) auto 0;
+    color: #9c9c9c;
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    letter-spacing: -0.02em;
+  }
+
+  .x-orb {
+    position: relative;
+    width: min(26rem, 80vw);
+    aspect-ratio: 1;
+    margin-inline: auto;
+    mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 88%);
+    pointer-events: none;
+    animation: x-spin 60s linear infinite;
+  }
+
+  .x-orb svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .x-orb-ring {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.42);
+    stroke-width: 1.1;
+  }
+
+  .x-orb-thin {
+    stroke: rgba(255, 255, 255, 0.2);
+  }
+
+  .x-orb-pins circle {
+    fill: var(--x-purple-lit);
+    animation: x-blip 3.4s var(--ease) infinite;
+  }
+
+  .x-orb-pins circle:nth-child(2) {
+    animation-delay: 0.5s;
+  }
+
+  .x-orb-pins circle:nth-child(3) {
+    animation-delay: 1s;
+  }
+
+  .x-orb-pins circle:nth-child(4) {
+    animation-delay: 1.5s;
+  }
+
+  .x-orb-pins circle:nth-child(5) {
+    animation-delay: 2s;
+  }
+
+  .x-cta {
+    margin-top: -1px;
+    padding-block: clamp(7rem, 16vw, 11rem) clamp(5rem, 13vw, 8.5rem);
+    color: #000;
+  }
+
+  .x-cta .x-band-bg {
+    background: #fff;
+    clip-path: polygon(0 5%, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .x-price {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    margin: 0;
+  }
+
+  .x-price-pre {
+    margin-bottom: 0.15em;
+    color: #242424;
+    font-size: clamp(0.95rem, 2vw, 1.35rem);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .x-price-big {
+    font-size: clamp(3.6rem, 15vw, 9.5rem);
+    font-weight: 900;
+    letter-spacing: -0.055em;
+    line-height: 0.88;
+  }
+
+  .x-price-num :global(i) {
+    display: inline-block;
+    width: 0.92ch;
+    font-style: normal;
+    text-align: center;
+  }
+
+  .x-cta-h {
+    margin: clamp(1.2rem, 3vw, 2rem) 0 0;
+    font-size: clamp(1.8rem, 5.2vw, 3.4rem);
+    font-weight: 900;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+
+  .x-cta .x-btn {
+    margin-top: clamp(1.8rem, 4vw, 2.6rem);
+  }
+
+  .x-cta-fine {
+    max-width: 40ch;
+    margin: 1.1rem auto 0;
+    color: #7a7a7a;
+    font-size: 0.85rem;
+    letter-spacing: -0.01em;
+  }
+
+  .x-foot {
+    padding-block: clamp(4rem, 10vw, 6.5rem) clamp(2rem, 4vw, 3rem);
+    background: #000;
+  }
+
+  .x-foot-inner {
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    text-align: center;
+  }
+
+  .x-foot-thanks {
+    margin: 0;
+    font-size: clamp(1.4rem, 4.4vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  .x-foot-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: clamp(2.5rem, 6vw, 4rem) 0 0;
+    padding-top: 1.4rem;
+    border-top: 1px solid #191919;
+    color: #3a3a3a;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .x-dock {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+    display: none;
+    padding: 0.7rem 1rem calc(0.7rem + env(safe-area-inset-bottom));
+    border-top: 1px solid #1c1c1c;
+    background: rgba(0, 0, 0, 0.86);
+    transform: translateY(110%);
+    transition: transform 0.4s var(--ease);
+    backdrop-filter: blur(3px);
+  }
+
+  .x-dock.is-on {
+    transform: none;
+  }
+
+  .x-dock .x-btn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .x-pick {
+    width: min(26rem, calc(100% - 2rem));
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #000;
+  }
+
+  .x-pick::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+  }
+
+  .x-pick[open] {
+    animation: x-pick-in 0.35s var(--ease);
+  }
+
+  .x-pick-card {
+    position: relative;
+    display: grid;
+    gap: 0.7rem;
+    padding: 1.6rem;
+    border-radius: 4px;
+    background: #fff;
+  }
+
+  .x-pick-close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.6rem;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 0;
+    background: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+  }
+
+  .x-pick-title {
+    margin: 0;
+    padding-right: 2rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  .x-pick-sub {
+    margin: 0 0 0.4rem;
+    color: #7a7a7a;
+    font-size: 0.9rem;
+  }
+
+  .x-pick-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.95rem 1.1rem;
+    border: 1px solid #e6e6e6;
+    border-radius: 3px;
+    color: #000;
+    text-decoration: none;
+    transition:
+      border-color 0.25s,
+      background-color 0.25s;
+  }
+
+  .x-pick-option:hover {
+    border-color: var(--x-purple);
+    background: #f6f2ff;
+  }
+
+  .x-pick-text {
+    display: grid;
+  }
+
+  .x-pick-text i {
+    color: #7a7a7a;
+    font-size: 0.82rem;
+    font-style: normal;
+  }
+
+  @keyframes x-rise {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+  }
+
+  @keyframes x-draw {
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes x-ink {
+    to {
+      color: var(--x-purple);
+    }
+  }
+
+  @keyframes x-drift {
+    to {
+      transform: translate3d(64px, 64px, 0);
+    }
+  }
+
+  @keyframes x-step {
+    0% {
+      opacity: 0;
+      transform: translateY(5px) scale(0.55);
+    }
+    7% {
+      opacity: 1;
+      transform: none;
+    }
+    68% {
+      opacity: 1;
+      transform: none;
+    }
+    86%,
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  @keyframes x-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes x-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.4;
+      transform: scale(0.7);
+    }
+  }
+
+  @keyframes x-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes x-blip {
+    0%,
+    100% {
+      opacity: 0.18;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes x-pick-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.98);
+    }
+  }
+
+  @media (min-width: 900px) {
+    .x-band-wrap {
+      max-width: 1080px;
+    }
+
+    .x-band-text {
+      max-width: 30rem;
+    }
+
+    .x-band--fig-right .x-band-text {
+      margin-right: auto;
+      text-align: left;
+    }
+
+    .x-band--fig-left .x-band-text {
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .x-band-fig {
+      position: absolute;
+      bottom: 0;
+      width: min(26rem, 34vw);
+      margin: 0;
+      translate: 0 50%;
+    }
+
+    .x-band--fig-right .x-band-fig {
+      left: calc(50% + 1.5rem);
+    }
+
+    .x-band--fig-left .x-band-fig {
+      right: calc(50% + 1.5rem);
+    }
+
+    .x-band--fig-right .x-breath-line,
+    .x-band--fig-right .x-world-note {
+      margin-inline: 0;
+    }
+
+    .x-band--fig-left .x-note-lead,
+    .x-band--fig-left .x-cta-fine {
+      margin-inline: auto 0;
+    }
+
+    .x-band--fig-left .x-price,
+    .x-band--fig-left .x-world-price {
+      align-items: flex-end;
+    }
+
+    .x-band--fig-right .x-price,
+    .x-band--fig-right .x-world-price {
+      align-items: flex-start;
+    }
+
+    .x-band-text .x-poster-h {
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      line-height: 0.98;
+    }
+
+    .x-band-text .x-note-h {
+      font-size: clamp(2rem, 3.6vw, 3.1rem);
+    }
+
+    .x-band-text .x-world-h {
+      font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+      line-height: 1.02;
+    }
+
+    .x-band-text .x-cta-h {
+      font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+    }
+
+    .x-band-text .x-price-big {
+      font-size: clamp(3.2rem, 6.4vw, 5.6rem);
+    }
+
+    .x-band-text .x-world-price b {
+      font-size: clamp(2.8rem, 5.4vw, 4.6rem);
+    }
+
+    .x-breath .x-band-fig,
+    .x-world .x-band-fig {
+      display: grid;
+      place-items: center;
+      width: min(21rem, 27vw);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: #000;
+    }
+
+    .x-band-fig .x-clock {
+      width: 62%;
+    }
+
+    .x-band-fig .x-orb {
+      width: 104%;
+    }
+
+    .x-band-fig .x-search {
+      max-width: none;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .x-dock {
+      display: block;
+    }
+
+    .x-note {
+      clip-path: polygon(0 3.5%, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .x-world {
+      clip-path: polygon(0 0, 100% 2.5%, 100% 100%, 0 100%);
+    }
+
+    .x-cta {
+      clip-path: polygon(0 3%, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .x-foot {
+      padding-bottom: 5.5rem;
+    }
+
+    .x-foot-meta {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .x-pl,
+    .x-hero-sub,
+    .x-hero-cta,
+    .x-grid,
+    .x-orb,
+    .x-orb-pins circle,
+    .x-ai-dot {
+      animation: none;
+    }
+
+    .x-mark {
+      color: var(--x-purple);
+      animation: none;
+    }
+
+    .x-mark::before {
+      transform: scaleX(1);
+      animation: none;
+    }
+
+    .x-paw {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
+
+    .x-reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .x-clock-arc {
+      stroke-dashoffset: 135;
+      transition: none;
+    }
+
+    .x-sr {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>

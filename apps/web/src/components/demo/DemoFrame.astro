@@ -1,0 +1,802 @@
+---
+import { company, hasWhatsapp } from "../../config/company";
+import Layout from "../../layouts/Layout.astro";
+
+interface Area {
+  name: string;
+  fee: number;
+}
+
+interface StoreConfig {
+  products: { id: string; name: string; price: number; options?: string[] }[];
+  groups?: { id: string; label: string; type: "single" | "multi"; required?: boolean; choices: { label: string; price?: number }[] }[];
+  modes?: ("entrega" | "retirada" | "envio")[];
+  areas?: Area[];
+  shipping?: number;
+  freeFrom?: number;
+  payments?: string[];
+  pickupAddress?: string;
+  bagLabel?: string;
+  minDelivery?: number;
+}
+
+interface Props {
+  brand: string;
+  title: string;
+  description: string;
+  path: string;
+  themeColor: string;
+  bodyClass: string;
+  store?: StoreConfig | undefined;
+}
+
+const { brand, title, description, path, themeColor, bodyClass, store } = Astro.props;
+const whatsapp = hasWhatsapp();
+const money = (value: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
+const data = store
+  ? {
+      brand,
+      whatsapp: whatsapp ? company.whatsapp : "",
+      email: company.email,
+      subject: `Pedido de demonstração: ${brand}`,
+      products: store.products,
+      groups: store.groups ?? [],
+      areas: store.areas ?? [],
+      ...(store.shipping !== undefined ? { shipping: store.shipping } : {}),
+      ...(store.freeFrom !== undefined ? { freeFrom: store.freeFrom } : {}),
+      ...(store.minDelivery !== undefined ? { minDelivery: store.minDelivery } : {}),
+    }
+  : null;
+const modes = store?.modes ?? [];
+const modeLabels: Record<string, string> = { entrega: "Entrega", retirada: "Retirada", envio: "Envio" };
+const bagLabel = store?.bagLabel ?? "Sacola";
+const previewId = path.split("/")[2] ?? "";
+---
+
+<Layout locale="pt" path={path} title={title} description={description} noindex themeColor={themeColor} bodyClass={`demo ${bodyClass}`} image={`/previews/${previewId}.png`}>
+  <div class="demo-ribbon">
+    <span>Projeto de demonstração · marca e produtos fictícios</span>
+    <a href="/projetos">Feito pela Valtrea</a>
+  </div>
+
+  <main id="main">
+    <slot />
+  </main>
+
+  <footer class="demo-foot">
+    <p class="demo-foot-title">Quer um site assim para o seu negócio?</p>
+    <p class="demo-foot-sub">A Valtrea constrói do zero, com a sua marca, e entrega funcionando.</p>
+    <a class="demo-foot-cta" href="/contato">Falar com a Valtrea</a>
+    <p class="demo-foot-note">{brand} é uma marca fictícia criada para demonstração. Nenhum pedido feito aqui é real.</p>
+    <p class="demo-foot-legal"><a href="/privacidade">Privacidade</a> · <a href="/termos">Termos de uso</a> · <a href="/acessibilidade">Acessibilidade</a></p>
+  </footer>
+
+  {
+    data && (
+      <>
+        <script is:inline type="application/json" id="store-data" set:html={JSON.stringify(data).replace(/</g, "\\u003c")}></script>
+        <button type="button" class="bag-fab" data-bag-open>
+          <span>{bagLabel}</span>
+          <b data-bag-count hidden>
+            0
+          </b>
+          <span class="bag-fab-total" data-bag-total-mini>
+            R$ 0,00
+          </span>
+        </button>
+        <p class="demo-toast" data-toast role="status" aria-live="polite" />
+
+        <dialog class="demo-sheet" data-item-dialog aria-labelledby="item-title">
+          <form method="dialog" class="sheet-inner" data-item-form>
+            <header class="sheet-head">
+              <h2 id="item-title" data-item-title>
+                Item
+              </h2>
+              <button type="button" class="sheet-close" data-dialog-close aria-label="Fechar">
+                ×
+              </button>
+            </header>
+            <div class="sheet-body">
+              <div data-item-groups />
+              <label class="field">
+                <span>Alguma observação?</span>
+                <textarea name="note" rows="2" maxlength="200" placeholder="Ex.: sem cebola" />
+              </label>
+            </div>
+            <footer class="sheet-foot">
+              <div class="qty">
+                <button type="button" class="qty-btn" data-qty-minus aria-label="Diminuir">
+                  −
+                </button>
+                <span class="qty-value" data-qty-value>
+                  1
+                </span>
+                <button type="button" class="qty-btn" data-qty-plus aria-label="Aumentar">
+                  +
+                </button>
+              </div>
+              <button type="submit" class="sheet-cta" data-item-submit>
+                Adicionar
+              </button>
+            </footer>
+          </form>
+        </dialog>
+
+        <dialog class="demo-sheet demo-bag" data-bag aria-labelledby="bag-title">
+          <div class="sheet-inner">
+            <header class="sheet-head">
+              <h2 id="bag-title">{bagLabel}</h2>
+              <button type="button" class="sheet-close" data-dialog-close aria-label="Fechar">
+                ×
+              </button>
+            </header>
+            <div class="sheet-body">
+              <p class="bag-empty" data-bag-empty>
+                Sua {bagLabel.toLowerCase()} está vazia.
+              </p>
+              <ul class="bag-lines" data-bag-items />
+              <form class="checkout" data-checkout hidden>
+                {store?.freeFrom !== undefined && (
+                  <div class="free">
+                    <div class="free-bar" data-free-bar>
+                      <span />
+                    </div>
+                    <p data-free-text />
+                  </div>
+                )}
+                <label class="field">
+                  <span>Seu nome</span>
+                  <input name="name" required maxlength="80" autocomplete="name" />
+                </label>
+                {modes.length > 1 && (
+                  <fieldset class="modes">
+                    <legend class="sr-only">Como receber</legend>
+                    {modes.map((mode, index) => (
+                      <label>
+                        <input type="radio" name="mode" value={mode} checked={index === 0} />
+                        <span>{modeLabels[mode]}</span>
+                      </label>
+                    ))}
+                  </fieldset>
+                )}
+                {modes.includes("entrega") && (
+                  <div class="field-group" data-when-mode="entrega">
+                    <label class="field">
+                      <span>Bairro</span>
+                      <select name="area" required>
+                        {(store?.areas ?? []).map((area, index) => (
+                          <option value={index}>
+                            {area.name} · {money(area.fee)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label class="field">
+                      <span>Endereço</span>
+                      <input name="address" required maxlength="160" autocomplete="street-address" placeholder="Rua, número e complemento" />
+                    </label>
+                  </div>
+                )}
+                {modes.includes("retirada") && store?.pickupAddress && (
+                  <p class="pickup" data-when-mode="retirada">
+                    Retirada em {store.pickupAddress}
+                  </p>
+                )}
+                {modes.includes("envio") && (
+                  <div class="field-group" data-when-mode="envio">
+                    <label class="field">
+                      <span>CEP</span>
+                      <input name="cep" required inputmode="numeric" maxlength="9" autocomplete="postal-code" placeholder="00000-000" />
+                    </label>
+                    <label class="field">
+                      <span>Endereço</span>
+                      <input name="address" required maxlength="160" autocomplete="street-address" placeholder="Rua, número, bairro e cidade" />
+                    </label>
+                  </div>
+                )}
+                {store?.payments && (
+                  <label class="field">
+                    <span>Pagamento</span>
+                    <select name="payment">
+                      {store.payments.map((payment) => (
+                        <option>{payment}</option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+                {store?.payments?.includes("Dinheiro") && (
+                  <label class="field" data-when-cash hidden>
+                    <span>Troco para quanto?</span>
+                    <input name="change" inputmode="decimal" maxlength="12" placeholder="Ex.: R$ 100" />
+                  </label>
+                )}
+                <dl class="totals">
+                  <div>
+                    <dt>Subtotal</dt>
+                    <dd data-subtotal>R$ 0,00</dd>
+                  </div>
+                  {modes.some((mode) => mode !== "retirada") && (
+                    <div>
+                      <dt>{modes.includes("envio") ? "Frete" : "Taxa de entrega"}</dt>
+                      <dd data-fee>R$ 0,00</dd>
+                    </div>
+                  )}
+                  <div class="total">
+                    <dt>Total</dt>
+                    <dd data-total>R$ 0,00</dd>
+                  </div>
+                </dl>
+                <p class="demo-warning" data-min-warning hidden />
+                <button type="submit" class="sheet-cta">Finalizar pedido</button>
+                <p class="demo-hint">Demonstração: o pedido vai para a Valtrea, não para uma loja. Os dados que você digitar só servem para montar a mensagem de WhatsApp (<a href="/privacidade" target="_blank" rel="noopener">Privacidade</a>).</p>
+              </form>
+              <div class="order-review" data-review hidden>
+                <h3>Confira o seu pedido</h3>
+                <p class="demo-hint">É exatamente esta mensagem que vai para o WhatsApp.</p>
+                <pre data-review-text></pre>
+                <a class="sheet-cta" href="#" target="_blank" rel="noopener" data-review-send>Enviar pedido no WhatsApp</a>
+                <button type="button" class="review-back" data-review-back>Voltar e editar</button>
+              </div>
+            </div>
+          </div>
+        </dialog>
+      </>
+    )
+  }
+  <script>
+    import "../../scripts/demo/store";
+  </script>
+</Layout>
+
+<style is:global>
+  body.demo {
+    --d-bg: #fff;
+    --d-surface: #fff;
+    --d-ink: #18181b;
+    --d-mute: #71717a;
+    --d-line: rgba(24, 24, 27, 0.1);
+    --d-accent: #18181b;
+    --d-accent-ink: #fff;
+    --d-radius: 18px;
+    background: var(--d-bg);
+    color: var(--d-ink);
+  }
+
+  body.dialog-open {
+    overflow: hidden;
+  }
+
+  .demo-ribbon {
+    position: relative;
+    z-index: 5;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.3rem 0.9rem;
+    padding: 0.45rem 1rem;
+    background: #111116;
+    color: rgba(255, 255, 255, 0.82);
+    font-family: var(--font-sans);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .demo-ribbon a {
+    color: #a3e07f;
+    font-weight: 600;
+  }
+
+  .demo-foot {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+    padding: 4rem 1.25rem 6rem;
+    background: #111116;
+    color: #fff;
+    font-family: var(--font-sans);
+    text-align: center;
+  }
+
+  .demo-foot-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .demo-foot-legal {
+    margin: 0.4rem 0 0;
+    font-size: 0.8rem;
+  }
+
+  .demo-foot-legal a {
+    color: rgba(255, 255, 255, 0.78);
+    text-underline-offset: 0.15em;
+  }
+
+  .demo-foot-sub,
+  .demo-foot-note {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .demo-foot-note {
+    max-width: 30rem;
+    margin-top: 1.4rem;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .demo-foot-cta {
+    margin-top: 0.8rem;
+    padding: 0.9rem 1.5rem;
+    border-radius: 999px;
+    background: #387a1e;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .demo-foot-cta:hover {
+    background: #2e6619;
+  }
+
+  .bag-fab {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    z-index: 40;
+    display: none;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.85rem 1.3rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--d-accent);
+    color: var(--d-accent-ink);
+    box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.55);
+    font: inherit;
+    font-weight: 600;
+    transform: translateX(-50%);
+    cursor: pointer;
+  }
+
+  body.has-bag .bag-fab {
+    display: inline-flex;
+  }
+
+  .bag-fab b {
+    display: grid;
+    place-items: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--d-accent-ink);
+    color: var(--d-accent);
+    font-size: 0.8rem;
+  }
+
+  .bag-fab-total {
+    opacity: 0.85;
+  }
+
+  .demo-toast {
+    position: fixed;
+    left: 50%;
+    top: 1rem;
+    z-index: 80;
+    margin: 0;
+    padding: 0.7rem 1.1rem;
+    border-radius: 999px;
+    background: #111116;
+    color: #fff;
+    font-size: 0.9rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -0.5rem);
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  .demo-toast.is-shown {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  .demo-sheet {
+    width: min(100%, 30rem);
+    max-width: 100%;
+    max-height: min(92dvh, 46rem);
+    margin: auto auto 0;
+    padding: 0;
+    border: 0;
+    border-radius: 24px 24px 0 0;
+    background: var(--d-surface);
+    color: var(--d-ink);
+    box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.5);
+  }
+
+  .demo-sheet::backdrop {
+    background: rgba(10, 10, 14, 0.5);
+    backdrop-filter: blur(3px);
+  }
+
+  .demo-sheet[open] {
+    animation: sheet-up 0.3s ease both;
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(40px);
+      opacity: 0;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .demo-sheet {
+      margin: auto;
+      border-radius: 24px;
+    }
+  }
+
+  .sheet-inner {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    max-height: inherit;
+  }
+
+  .sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-bottom: 1px solid var(--d-line);
+  }
+
+  .sheet-head h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .sheet-close {
+    width: 2.3rem;
+    height: 2.3rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .sheet-body {
+    display: grid;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    overflow-y: auto;
+  }
+
+  .sheet-foot {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--d-line);
+  }
+
+  .sheet-cta {
+    flex: 1;
+    padding: 0.95rem 1.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--d-accent);
+    color: var(--d-accent-ink);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .opt-group {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0 0 0.6rem;
+    padding: 0;
+    border: 0;
+  }
+
+  .opt-group legend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    font-weight: 700;
+  }
+
+  .opt-required {
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.07);
+    color: var(--d-mute);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid var(--d-line);
+    border-radius: 14px;
+    cursor: pointer;
+  }
+
+  .opt:has(input:checked) {
+    border-color: var(--d-accent);
+    box-shadow: 0 0 0 1px var(--d-accent);
+  }
+
+  .opt input {
+    accent-color: var(--d-accent);
+  }
+
+  .opt-label {
+    flex: 1;
+  }
+
+  .opt-price {
+    color: var(--d-mute);
+    font-size: 0.88rem;
+  }
+
+  .demo .field {
+    display: grid;
+    gap: 0.35rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+  }
+
+  .demo .field input,
+  .demo .field select,
+  .demo .field textarea {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--d-line);
+    border-radius: 12px;
+    background: #fff;
+    color: #18181b;
+    font: inherit;
+    font-weight: 400;
+  }
+
+  .field-group {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.2rem;
+    border: 1px solid var(--d-line);
+    border-radius: 999px;
+  }
+
+  .qty-btn {
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+
+  .qty-value {
+    min-width: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .bag-empty {
+    margin: 1rem 0;
+    color: var(--d-mute);
+    text-align: center;
+  }
+
+  .bag-lines {
+    display: grid;
+    gap: 0.7rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .bag-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--d-line);
+  }
+
+  .bag-info {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .bag-picks {
+    color: var(--d-mute);
+    font-size: 0.82rem;
+  }
+
+  .bag-price {
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+
+  .checkout {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .modes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.3rem;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  .modes label {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 0.6rem;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .modes input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .modes label:has(input:checked) {
+    background: #fff;
+    color: #18181b;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  .modes label:has(input:focus-visible) {
+    outline: 2px solid var(--d-accent);
+  }
+
+  .pickup {
+    margin: 0;
+    color: var(--d-mute);
+    font-size: 0.9rem;
+  }
+
+  .free {
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .free p {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .free-bar {
+    --p: 0;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+  }
+
+  .free-bar span {
+    display: block;
+    height: 100%;
+    width: calc(var(--p) * 100%);
+    border-radius: inherit;
+    background: var(--d-accent);
+    transition: width 0.4s ease;
+  }
+
+  .totals {
+    display: grid;
+    gap: 0.35rem;
+    margin: 0;
+  }
+
+  .totals div {
+    display: flex;
+    justify-content: space-between;
+    color: var(--d-mute);
+  }
+
+  .totals dd {
+    margin: 0;
+  }
+
+  .totals .total {
+    color: var(--d-ink);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+
+  .demo-warning {
+    margin: 0;
+    color: #b91c1c;
+    font-size: 0.88rem;
+    font-weight: 600;
+  }
+
+  .demo-hint {
+    margin: 0;
+    color: var(--d-mute);
+    font-size: 0.78rem;
+    text-align: center;
+  }
+
+  .demo-hint a {
+    color: inherit;
+    text-underline-offset: 0.15em;
+  }
+
+  .order-review {
+    display: grid;
+    gap: 0.8rem;
+  }
+
+  .order-review[hidden] {
+    display: none;
+  }
+
+  .order-review h3 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .order-review pre {
+    max-height: 18rem;
+    margin: 0;
+    padding: 1rem 1.1rem;
+    overflow: auto;
+    border-radius: 14px;
+    background: #e9f7e3;
+    color: #1d2a17;
+    font: 500 0.9rem/1.5 var(--font-sans);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .review-back {
+    justify-self: center;
+    padding: 0.4rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    opacity: 0.75;
+  }
+</style>

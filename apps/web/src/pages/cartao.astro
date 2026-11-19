@@ -1,0 +1,565 @@
+---
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import BrandIcon from "../components/site/BrandIcon.astro";
+import Icon from "../components/site/Icon.astro";
+import { company, quoteMailto, socialUrl, talkUrl, whatsappDisplay } from "../config/company";
+import { demos, liveProducts } from "../config/showcase";
+import Layout from "../layouts/Layout.astro";
+
+const person = company.person;
+const whatsappHref = talkUrl(`Olá, ${person.name}! Vi o seu cartão digital.`, "Contato pelo cartão");
+const whatsappExternal = whatsappHref.startsWith("https://");
+const instagram = socialUrl("instagram");
+const kinds: Record<string, string> = {
+  finance: "Produto Valtrea",
+  agora: "Produto Valtrea",
+  volta: "Produto Valtrea",
+  pulso: "Produto Valtrea",
+  valtrea: "Site institucional",
+  cardapio: "Cardápio digital",
+  pet: "Loja virtual",
+  corrida: "Loja virtual",
+  achados: "Loja virtual",
+  proposta: "Proposta em página",
+};
+const previewOf = (id: string) => {
+  for (const extension of ["png", "jpg"]) {
+    if (existsSync(join(process.cwd(), "public", "previews", `${id}.${extension}`))) return `/previews/${id}.${extension}`;
+  }
+  return "";
+};
+const builds = ["Páginas de venda", "Sistemas web", "Landing pages", "Aplicativos", "Sites institucionais", "Automações e integrações"];
+const promises = ["Decidimos tudo juntos", "Contrato por escrito", "Pagamento só no final"];
+const sites = [
+  ...liveProducts.map((item) => ({ ...item, external: true })),
+  { id: "valtrea", name: "Site da Valtrea", href: "/", domain: company.domain, pt: "O site que você está vendo: serviços, processo, vitrine e contato.", en: "", hue: 100, icon: "globe", external: false },
+  ...demos.map((item) => ({ ...item, external: false })),
+].map((item) => ({ ...item, kind: kinds[item.id] ?? "Projeto", preview: previewOf(item.id) }));
+---
+
+<Layout locale="pt" path="/cartao" title={`${person.fullName} · Valtrea`} description={`${person.role}. Cartão de visita digital da Valtrea.`} themeColor="#05060a" bodyClass="cardpage">
+  <main id="main">
+    <section class="k-stage">
+      <p class="k-top">val<b>trea</b></p>
+      <div class="k-scene" data-metal-card tabindex="0" role="button" aria-label="Virar o cartão">
+        <div class="k-float">
+          <div class="k-card" data-metal-inner>
+            <div class="k-face k-front">
+              <span class="k-brand">val<b>trea</b></span>
+              <img class="k-logo" src="/brand/mark.png" alt="" width="64" height="64" />
+              <span class="k-who">
+                <strong>{person.fullName}</strong>
+                <span>{person.role}</span>
+              </span>
+              <span class="k-site">{company.domain}</span>
+            </div>
+            <div class="k-face k-back">
+              <span class="k-back-title">O que eu construo</span>
+              <ul class="k-builds">
+                {builds.map((item) => <li>{item}</li>)}
+              </ul>
+              <span class="k-rule" aria-hidden="true"></span>
+              <ul class="k-promises">
+                {promises.map((item) => <li><Icon name="check" size={18} stroke={2.2} />{item}</li>)}
+              </ul>
+              <span class="k-contacts">
+                {company.whatsapp && <span>{whatsappDisplay()}</span>}
+                {company.instagram && <span>@{company.instagram}</span>}
+                <span class="k-contact-site">{company.domain}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="k-hint">Toque para virar · arraste para girar</p>
+    </section>
+
+    <div class="k-body">
+      <h1 class="k-name">{person.fullName}</h1>
+      <p class="k-role">{person.role}</p>
+      <p class="k-pitch">Construo sites, sistemas, aplicativos e automações para empresas. Cuido da tela que o seu cliente vê e de tudo que roda por trás dela.</p>
+
+      <div class="k-actions">
+        <a class="k-btn k-btn--wa" href={whatsappHref} target={whatsappExternal ? "_blank" : undefined} rel={whatsappExternal ? "noopener" : undefined}>
+          <BrandIcon name="whatsapp" size={20} /> Chamar no WhatsApp
+        </a>
+        <div class="k-pair">
+          {
+            instagram && (
+              <a class="k-btn" href={instagram} target="_blank" rel="noopener">
+                <BrandIcon name="instagram" size={18} /> @{company.instagram}
+              </a>
+            )
+          }
+          <a class="k-btn" href={quoteMailto("Contato pelo cartão")}><Icon name="mail" size={18} /> E-mail</a>
+        </div>
+        <a class="k-btn" href="/projetos"><Icon name="window" size={18} /> Ver projetos</a>
+      </div>
+
+      <section class="k-sites" aria-labelledby="sites-title">
+        <h2 id="sites-title">Sites que a gente fez</h2>
+        <ul>
+          {
+            sites.map((site) => (
+              <li>
+                <a class="k-site-card" href={site.href} target={site.external ? "_blank" : undefined} rel={site.external ? "noopener" : undefined}>
+                  <span class="k-preview" style={`--h: ${site.hue}`}>
+                    {site.preview ? (
+                      <img src={site.preview} alt="" loading="lazy" width="1280" height="720" />
+                    ) : (
+                      <span class="k-preview-fallback">
+                        <Icon name={site.icon} size={44} stroke={1.3} />
+                        <span>{site.domain}</span>
+                      </span>
+                    )}
+                  </span>
+                  <span class="k-site-body">
+                    <span class="k-site-title">
+                      <strong>{site.name}</strong>
+                      <Icon name="arrow-up-right" size={20} />
+                    </span>
+                    <span class="k-site-text">{site.pt}</span>
+                    <span class="k-chip">{site.kind}</span>
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <footer class="k-foot">© {new Date().getFullYear()} Valtrea · {company.domain} · <a href="/privacidade">Privacidade</a> · <a href="/termos">Termos</a></footer>
+    </div>
+  </main>
+  <script>
+    import "../scripts/pages";
+  </script>
+</Layout>
+
+<style is:global>
+  body.cardpage {
+    background: #05060a;
+    color: #fff;
+  }
+
+</style>
+
+<style>
+  .k-stage {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    margin: 0.5rem;
+    padding: 1.4rem 1rem 3rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 18px;
+    background: radial-gradient(ellipse at 50% 40%, #121826, #070910 70%);
+  }
+
+  .k-top {
+    margin: 0 0 clamp(2rem, 8vw, 6rem);
+    color: rgba(255, 255, 255, 0.75);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 500;
+  }
+
+  .k-top b {
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .k-scene {
+    width: min(38rem, 86vw);
+    aspect-ratio: 1.586;
+    container-type: inline-size;
+    perspective: 1400px;
+    cursor: grab;
+    touch-action: pan-y;
+    outline: none;
+    user-select: none;
+  }
+
+  .k-scene:active {
+    cursor: grabbing;
+  }
+
+  .k-float {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: k-float 9s ease-in-out infinite;
+  }
+
+  .k-scene.is-held .k-float {
+    animation-play-state: paused;
+  }
+
+  @keyframes k-float {
+    0%,
+    100% {
+      transform: rotateX(8deg) rotateY(-16deg) translateY(0);
+    }
+    50% {
+      transform: rotateX(4deg) rotateY(12deg) translateY(-12px);
+    }
+  }
+
+  .k-card {
+    --rx: 0deg;
+    --ry: 0deg;
+    --shine: 30%;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    border-radius: 26px;
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx)) rotateY(var(--ry));
+  }
+
+  .k-card.is-animating {
+    transition: transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .k-scene:focus-visible .k-card {
+    outline: 3px solid #4ade80;
+    outline-offset: 6px;
+  }
+
+  .k-face {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    padding: clamp(1.2rem, 4vw, 2.6rem);
+    border-radius: 26px;
+    color: #1d2026;
+    background:
+      linear-gradient(110deg, transparent calc(var(--shine) - 25%), rgba(255, 255, 255, 0.75) var(--shine), transparent calc(var(--shine) + 25%)),
+      repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.45) 0 1px, rgba(0, 0, 0, 0.035) 1px 2px, transparent 2px 3px),
+      linear-gradient(180deg, #f7f8fa 0%, #e4e6ea 45%, #c9ccd2 78%, #eceef1 100%);
+    box-shadow:
+      inset 0 1px 0 #fff,
+      inset 0 -2px 0 rgba(0, 0, 0, 0.12),
+      0 40px 80px -30px rgba(0, 0, 0, 0.9);
+    backface-visibility: hidden;
+  }
+
+  .k-front {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .k-brand {
+    font-family: var(--font-display);
+    font-size: 4cqw;
+    font-weight: 500;
+    color: #4b4f57;
+  }
+
+  .k-brand b {
+    color: #1d2026;
+    font-weight: 800;
+  }
+
+  .k-logo {
+    width: 9cqw;
+    height: auto;
+    justify-self: end;
+  }
+
+  .k-who {
+    display: grid;
+    grid-column: 1 / -1;
+    align-self: end;
+    gap: 0.3rem;
+  }
+
+  .k-who strong {
+    font-family: var(--font-display);
+    font-size: 8.6cqw;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .k-who span {
+    font-size: 3.6cqw;
+    color: #3b3f46;
+  }
+
+  .k-site {
+    grid-column: 1 / -1;
+    justify-self: end;
+    margin-top: -1.6em;
+    font-size: 3cqw;
+    color: #4b4f57;
+  }
+
+  .k-back {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
+    align-content: start;
+    column-gap: 4cqw;
+    padding: 6.5cqw 6cqw 5.5cqw;
+    transform: rotateY(180deg);
+  }
+
+  .k-back-title {
+    grid-column: 1 / -1;
+    color: #2b2f36;
+    font-size: 2.7cqw;
+    font-weight: 500;
+  }
+
+  .k-builds {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.2cqw 4cqw;
+    margin: 3.2cqw 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .k-builds li {
+    display: flex;
+    align-items: center;
+    gap: 1.6cqw;
+    color: #1d2026;
+    font-size: 3.1cqw;
+    line-height: 1.15;
+  }
+
+  .k-builds li::before {
+    content: "";
+    flex: none;
+    width: 1.1cqw;
+    height: 1.1cqw;
+    border-radius: 50%;
+    background: #387a1e;
+  }
+
+  .k-rule {
+    grid-column: 1 / -1;
+    align-self: end;
+    height: 1px;
+    margin: 4cqw 0 3.6cqw;
+    background: rgba(29, 32, 38, 0.22);
+  }
+
+  .k-promises {
+    display: grid;
+    gap: 1.2cqw;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .k-promises li {
+    display: flex;
+    align-items: center;
+    gap: 1.4cqw;
+    color: #1d2026;
+    font-size: 2.4cqw;
+  }
+
+  .k-promises li :global(svg) {
+    flex: none;
+    width: 3.2cqw;
+    height: 3.2cqw;
+    color: #387a1e;
+  }
+
+  .k-contacts {
+    display: grid;
+    align-content: end;
+    justify-items: end;
+    gap: 1.2cqw;
+    color: #1d2026;
+    font-size: 2.4cqw;
+  }
+
+  .k-contact-site {
+    color: #387a1e;
+  }
+
+  .k-hint {
+    margin: clamp(2rem, 6vw, 4rem) 0 0;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.85rem;
+  }
+
+  .k-body {
+    display: grid;
+    justify-items: center;
+    width: min(100% - 2rem, 38rem);
+    margin: 0 auto;
+    padding: 3rem 0;
+  }
+
+  .k-name {
+    color: #fff;
+    font-size: clamp(2.2rem, 8vw, 3.4rem);
+    letter-spacing: -0.03em;
+    text-align: center;
+  }
+
+  .k-role {
+    margin: 0.4rem 0 0;
+    color: #4ade80;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+
+  .k-pitch {
+    margin: 1rem 0 1.8rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.05rem;
+    text-align: center;
+  }
+
+  .k-actions {
+    display: grid;
+    gap: 0.7rem;
+    width: 100%;
+  }
+
+  .k-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.7rem;
+  }
+
+  .k-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s var(--ease);
+  }
+
+  .k-btn:hover {
+    background: rgba(255, 255, 255, 0.11);
+  }
+
+  .k-btn--wa {
+    border-color: transparent;
+    background: #387a1e;
+  }
+
+  .k-btn--wa:hover {
+    background: #45922a;
+  }
+
+  .k-sites {
+    width: 100%;
+    margin-top: 3rem;
+  }
+
+  .k-sites h2 {
+    margin-bottom: 1.1rem;
+    color: #fff;
+    font-size: 1.5rem;
+  }
+
+  .k-sites ul {
+    display: grid;
+    gap: 1.1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .k-site-card {
+    display: grid;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    background: #0d1018;
+    color: #fff;
+    text-decoration: none;
+    transition: border-color 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .k-site-card:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .k-preview {
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(135deg, hsl(var(--h), 45%, 22%), hsl(calc(var(--h) + 30), 55%, 38%));
+  }
+
+  .k-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .k-preview-fallback {
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 0.7rem;
+    height: 100%;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+  }
+
+  .k-site-body {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.1rem 1.2rem 1.3rem;
+  }
+
+  .k-site-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    font-size: 1.2rem;
+  }
+
+  .k-site-text {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .k-chip {
+    justify-self: start;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+  }
+
+  .k-foot {
+    margin-top: 3rem;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.85rem;
+  }
+
+  .k-foot a {
+    color: rgba(255, 255, 255, 0.72);
+    text-underline-offset: 0.15em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .k-float {
+      animation: none;
+    }
+  }
+</style>

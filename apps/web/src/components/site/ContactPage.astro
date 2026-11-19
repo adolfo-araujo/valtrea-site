@@ -1,0 +1,153 @@
+---
+import { company, hasWhatsapp } from "../../config/company";
+import { legalLabels, legalPath } from "../../config/legal";
+import { sitePaths } from "../../config/paths";
+import { dictionaryFor, type Locale } from "../../i18n";
+import BrandIcon from "./BrandIcon.astro";
+import Icon from "./Icon.astro";
+import SiteShell from "./SiteShell.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const s = dictionaryFor(locale).site;
+const c = s.contactPage;
+const p = sitePaths(locale);
+const other = sitePaths(locale === "pt" ? "en" : "pt").contact;
+const whatsapp = hasWhatsapp() ? company.whatsapp : "";
+---
+
+<SiteShell locale={locale} path={p.contact} otherLanguageHref={other} title={`${c.title} | Valtrea`} description={c.sub} chat={false} compactFooter>
+  <section class="contact" data-spot-zone>
+    <div class="container contact-inner">
+      <h1 data-spot-block>{c.title}</h1>
+      <p class="contact-sub" data-spot-block>{c.sub}</p>
+      <form class="contact-card glass-plate" data-spot-block data-contact-form data-message={c.message} data-email-line={c.emailLine} data-whatsapp={whatsapp} data-email={company.email} data-subject={s.contact.subject} novalidate>
+        <label class="field">
+          <span>{c.name}</span>
+          <input name="name" type="text" autocomplete="name" maxlength="80" required placeholder={c.namePlaceholder} />
+        </label>
+        <label class="field">
+          <span>{c.email} <em>{c.optional}</em></span>
+          <input name="email" type="email" autocomplete="email" maxlength="120" placeholder={c.emailPlaceholder} />
+        </label>
+        <label class="field">
+          <span>{c.project}</span>
+          <textarea name="project" rows="6" maxlength="2000" required placeholder={c.projectPlaceholder}></textarea>
+        </label>
+        <p class="contact-error" data-contact-error hidden>{c.required}</p>
+        <button type="submit" class="contact-send">
+          {whatsapp ? <BrandIcon name="whatsapp" size={20} /> : <Icon name="mail" size={20} />}
+          {whatsapp ? c.submit : c.submitEmail}
+        </button>
+        <p class="contact-note">{c.privacy} <a href={legalPath(locale, "privacy")}>{legalLabels[locale].privacyPolicy}</a></p>
+      </form>
+    </div>
+  </section>
+</SiteShell>
+
+<style>
+  .contact {
+    padding: clamp(9rem, 16vw, 11.5rem) 0 5rem;
+  }
+
+  .contact-inner {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+  }
+
+  h1 {
+    max-width: 14ch;
+    font-size: clamp(2.6rem, 7.5vw, 5.4rem);
+    letter-spacing: -0.035em;
+  }
+
+  .contact-sub {
+    margin: 1rem 0 2.5rem;
+    color: var(--text-soft);
+    font-size: 1.1rem;
+  }
+
+  .contact-card {
+    display: grid;
+    gap: 1.2rem;
+    width: min(100%, 38rem);
+    padding: clamp(1.4rem, 4vw, 2.2rem);
+    text-align: left;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.45rem;
+    font-weight: 500;
+  }
+
+  .field em {
+    color: var(--text-mute);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .field input,
+  .field textarea {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+    font-weight: 400;
+    resize: vertical;
+    transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--brand);
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(var(--brand-rgb), 0.14);
+  }
+
+  .contact-error {
+    margin: 0;
+    color: #c2262e;
+    font-size: 0.9rem;
+  }
+
+  .contact-send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 1rem 1.4rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--brand);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s var(--ease), transform 0.2s var(--ease);
+  }
+
+  .contact-send:hover {
+    background: var(--brand-deep);
+    transform: translateY(-1px);
+  }
+
+  .contact-note {
+    margin: 0;
+    color: var(--text-mute);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  .contact-note a {
+    color: inherit;
+    text-underline-offset: 0.18em;
+  }
+</style>

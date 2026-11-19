@@ -1,0 +1,30 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "valtrea-ingest",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "routes": [
+    { "pattern": "www.valtrea.com.br/t.js", "zone_name": "valtrea.com.br" },
+    { "pattern": "www.valtrea.com.br/e", "zone_name": "valtrea.com.br" },
+    { "pattern": "www.valtrea.com.br/health", "zone_name": "valtrea.com.br" },
+    { "pattern": "novo.valtrea.com.br/t.js", "zone_name": "valtrea.com.br" },
+    { "pattern": "novo.valtrea.com.br/e", "zone_name": "valtrea.com.br" },
+    { "pattern": "novo.valtrea.com.br/health", "zone_name": "valtrea.com.br" },
+  ],
+  "observability": { "enabled": true },
+  "vars": {
+    "APP_ORIGIN": "https://www.valtrea.com.br",
+    "MAIL_FROM": "Valtrea <avisos@valtrea.com.br>",
+  },
+  "assets": { "directory": "../../packages/tracker/dist" },
+  "analytics_engine_datasets": [{ "binding": "EVENTS", "dataset": "valtrea_events" }],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "valtrea",
+      "database_id": "731a9f3b-e0d9-41ab-b6aa-863facffdcdc",
+      "migrations_dir": "../../packages/db/migrations",
+    },
+  ],
+}
