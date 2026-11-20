@@ -8,10 +8,12 @@ import { demoRoutes } from "./routes/demo";
 import { healthRoutes } from "./routes/health";
 import { linkRoutes } from "./routes/links";
 import { siteRoutes } from "./routes/sites";
+import { statusRoutes } from "./routes/status";
 
 const app = new Hono<AppEnv>()
   .basePath("/api")
   .route("/", healthRoutes)
+  .route("/", statusRoutes)
   .route("/", demoRoutes)
   .route("/", coffeeRoutes)
   .route("/", coffeeCheckoutRoutes)

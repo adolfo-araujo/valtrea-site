@@ -3,6 +3,7 @@ import "../styles/tokens.css";
 import "../styles/glass.css";
 import "../styles/base.css";
 import { dictionaryFor, homePathFor, type Locale } from "../i18n";
+import { company, socialUrl } from "../config/company";
 
 interface Props {
   locale: Locale;
@@ -23,6 +24,35 @@ const title = Astro.props.title ?? t.meta.title;
 const description = Astro.props.description ?? t.meta.description;
 const site = Astro.site?.origin ?? "https://www.valtrea.com.br";
 const canonical = new URL(path ?? homePathFor(locale), site).href;
+// Dados estruturados (schema.org) na página inicial: ajudam o Google a mostrar a empresa e os produtos
+const isHome = canonical === new URL(homePathFor(locale), site).href;
+const structuredData = isHome
+  ? JSON.stringify({
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": `${company.site}/#organizacao`,
+          name: company.name,
+          url: company.site,
+          logo: `${company.site}/apple-touch-icon.png`,
+          email: company.email,
+          address: { "@type": "PostalAddress", addressLocality: "Rio de Janeiro", addressRegion: "RJ", addressCountry: "BR" },
+          sameAs: (["instagram", "tiktok", "youtube"] as const).map((n) => socialUrl(n)).filter(Boolean),
+        },
+        { "@type": "WebSite", "@id": `${company.site}/#site`, url: company.site, name: company.name, inLanguage: locale === "pt" ? "pt-BR" : "en", publisher: { "@id": `${company.site}/#organizacao` } },
+        ...Object.entries(company.products).map(([id, url]) => ({
+          "@type": "SoftwareApplication",
+          name: `Valtrea ${id.charAt(0).toUpperCase()}${id.slice(1)}`,
+          url,
+          applicationCategory: id === "finance" ? "FinanceApplication" : "LifestyleApplication",
+          operatingSystem: "Web",
+          offers: { "@type": "Offer", price: "0", priceCurrency: "BRL" },
+          publisher: { "@id": `${company.site}/#organizacao` },
+        })),
+      ],
+    })
+  : null;
 const introScript =
   'try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches&&!location.hash&&sessionStorage.getItem("valtrea-intro-seen")!=="1"){document.documentElement.classList.add("intro")}}catch(e){}';
 const fonts =
@@ -64,6 +94,7 @@ const fonts =
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="stylesheet" href={fonts} />
     <script defer src="https://www.valtrea.com.br/t.js"></script>
+    {structuredData && <script type="application/ld+json" set:html={structuredData} />}
     <slot name="head" />
   </head>
   <body class={bodyClass}>

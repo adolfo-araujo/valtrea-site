@@ -16,7 +16,11 @@
   "vars": {
     "APP_ORIGIN": "https://www.valtrea.com.br",
     "MAIL_FROM": "Valtrea <avisos@valtrea.com.br>",
+    // Quem recebe os avisos do monitoramento (src/monitor.ts)
+    "ALERT_EMAIL": "contato@valtrea.com.br",
   },
+  // Monitoramento dos sites e APIs a cada 15 minutos
+  "triggers": { "crons": ["*/15 * * * *"] },
   "assets": { "directory": "../../packages/tracker/dist" },
   "analytics_engine_datasets": [{ "binding": "EVENTS", "dataset": "valtrea_events" }],
   "d1_databases": [

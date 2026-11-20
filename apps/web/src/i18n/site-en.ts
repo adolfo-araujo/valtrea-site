@@ -153,7 +153,7 @@ export const siteEn: typeof sitePt = {
     contactTitle: "Contact",
     nav: ["Home", "Services", "How we work", "Process", "Projects", "Contact"],
     services: ["Sales pages", "Landing pages", "Web systems", "Apps"],
-    more: ["Products", "Business card", "All links"],
+    more: ["Products", "Business card", "All links", "Service status"],
     moreTitle: "More",
     whatsapp: "WhatsApp",
     rights: "Valtrea · Rio de Janeiro, Brazil",

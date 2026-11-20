@@ -1,0 +1,7 @@
+# Achou uma falha de segurança em algum site ou app da Valtrea? Conte para nós antes de divulgar.
+# Found a security issue in a Valtrea site or app? Please tell us before disclosing it.
+Contact: mailto:contato@valtrea.com.br
+Expires: 2027-11-19T23:59:59.000Z
+Preferred-Languages: pt, en
+Canonical: https://www.valtrea.com.br/.well-known/security.txt
+Policy: https://www.valtrea.com.br/termos
