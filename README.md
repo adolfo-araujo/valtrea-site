@@ -1,8 +1,6 @@
 # Valtrea · site
 
-Site da Valtrea (sites, sistemas web e produtos digitais), com a mesma estrutura do projeto
-[Devlytics](https://github.com/gabrueldev/devlytics), de Gabriel Rodrigues, distribuído sob a licença MIT.
-O aviso de direitos autorais original está mantido em [LICENSE](LICENSE), como a licença exige.
+Site da Valtrea (sites, sistemas web e produtos digitais).
 
 ## O que tem aqui
 
