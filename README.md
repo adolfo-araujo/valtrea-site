@@ -1,54 +1,140 @@
-# Valtrea · site
+# Valtrea — Site Institucional
 
-Site da Valtrea (sites, sistemas web e produtos digitais).
+**Evolução que transforma.**
 
-## O que tem aqui
+Repositório do site institucional da **Valtrea**, dedicado à apresentação da marca, de seus produtos digitais e de suas soluções tecnológicas. O projeto reúne a experiência pública do site e serviços de apoio para autenticação, análise de visitas e integrações.
 
-| Pasta | O que é |
+**Site oficial:** [www.valtrea.com.br](https://www.valtrea.com.br/)
+
+## Sobre o projeto
+
+O Valtrea Site é uma aplicação web estruturada em **monorepositório**, com frontend em **Astro**, serviços executados na **Cloudflare** e pacotes compartilhados. Essa organização separa a interface, as rotas de API, a coleta de eventos e as integrações externas, facilitando a manutenção e a evolução do sistema.
+
+### Funcionalidades
+
+- **Site em português e inglês:** páginas principais em `/` e `/en/`.
+- **Catálogo de produtos:** páginas em `/produtos` e `/en/products`.
+- **Contato:** acesso ao canal de atendimento pelo WhatsApp.
+- **Links rastreados:** acompanhamento de interações com links por meio da API, conforme configuração do projeto.
+- **Experiência interativa:** seção de perguntas e respostas e interface de conversa ao lado do conteúdo.
+- **Painel de estatísticas:** visualização de dados de acesso, conforme a configuração dos serviços.
+- **Apoio ao projeto:** fluxo de contribuição por Pix ou cartão, com página de agradecimento e integração aos serviços de pagamento configurados.
+- **Autenticação com GitHub:** utilizada nas funcionalidades administrativas previstas na API.
+- **Monitoramento de visitas sem cookies:** script próprio de rastreamento e serviço de ingestão de eventos.
+
+> **Nota:** as funcionalidades administrativas, o painel e os pagamentos exigem a configuração das integrações externas. A disponibilidade de cada recurso depende do ambiente implantado.
+
+## Tecnologias e serviços
+
+| Categoria | Tecnologias |
 | --- | --- |
-| `apps/web` | O site (Astro): página principal (`/` e `/en/`) com perguntas respondidas na hora, conversa ao lado e "Fale com a gente" pelo WhatsApp; página de produtos (`/produtos` e `/en/products`) no estilo do projeto original; painel de estatísticas; café (Pix e cartão) e agradecimento |
-| `apps/api` | API na Cloudflare: login com GitHub, painel, links rastreados e pagamento do café pela Cakto |
-| `apps/ingest` | Recebe as visitas medidas pelo script `t.js` |
-| `packages/tracker` | O script `t.js`, que mede as visitas sem cookies |
-| `packages/core`, `adapters`, `db`, `shared` | Regras, integrações (Cloudflare D1, Analytics Engine, Resend, Cakto, GitHub) e banco |
-| `docs/decisions` | Decisões de arquitetura do projeto original |
+| Interface web | Astro, TypeScript |
+| Organização do código | pnpm workspaces e Turborepo |
+| Hospedagem e API | Cloudflare e Wrangler |
+| Dados e métricas | Cloudflare D1 e Analytics Engine |
+| Autenticação | Integração com GitHub |
+| Comunicação | Resend e WhatsApp |
+| Pagamentos | Cakto; opções de Pix e cartão na experiência do site |
 
-Antes de publicar, troque os dados marcados em [TROCAR-PARA-SEUS-DADOS.md](TROCAR-PARA-SEUS-DADOS.md).
+## Arquitetura do repositório
 
-## Rodar no computador
+```text
+.
+├── apps/
+│   ├── web/             # Site público em Astro
+│   ├── api/             # API e integrações na Cloudflare
+│   └── ingest/          # Recebimento de eventos de visita
+├── packages/
+│   ├── tracker/         # Script t.js de medição sem cookies
+│   ├── core/            # Regras e lógica compartilhadas
+│   ├── adapters/        # Integrações externas
+│   ├── db/              # Camada de dados
+│   └── shared/          # Código e tipos compartilhados
+├── docs/
+│   └── decisions/       # Decisões de arquitetura
+├── package.json
+├── pnpm-lock.yaml
+├── turbo.json
+└── README.md
+```
 
-Precisa de Node 24 e pnpm.
+**Como as partes se relacionam:** o `apps/web` apresenta a interface pública; o `apps/api` concentra rotas de serviço e integrações; `packages/tracker` disponibiliza o script de medição, enquanto `apps/ingest` recebe os eventos. Os pacotes compartilhados reduzem duplicação entre as aplicações.
+
+## Executar localmente
+
+### Pré-requisitos
+
+- **Node.js 24**
+- **pnpm**
+
+Na raiz do repositório, instale as dependências e inicie o frontend:
 
 ```bash
 pnpm install
 pnpm --filter @valtrea/web dev
 ```
 
-O site abre em http://localhost:4321. O painel e o café só funcionam depois de configurar a Cloudflare, o GitHub e a Cakto.
+Acesse **http://localhost:4321**.
 
-## Publicar na Cloudflare
+> O site pode ser executado localmente, mas o login com GitHub, o painel de estatísticas e os pagamentos dependem de serviços externos configurados. Consulte [`TROCAR-PARA-SEUS-DADOS.md`](./TROCAR-PARA-SEUS-DADOS.md) para os valores específicos do seu ambiente.
 
-1. Crie o banco e aplique as migrações:
+## Publicação na Cloudflare
 
-   ```bash
-   npx wrangler d1 create valtrea
-   npx wrangler d1 migrations apply valtrea --remote --config apps/api/wrangler.jsonc
-   ```
+Os comandos abaixo seguem o processo documentado neste projeto. Revise os identificadores e os arquivos de configuração antes de executá-los.
 
-2. Troque os dados listados em [TROCAR-PARA-SEUS-DADOS.md](TROCAR-PARA-SEUS-DADOS.md) e grave os segredos (exemplo: `cd apps/api && npx wrangler secret put SESSION_SECRET`).
+### 1. Preparar o banco de dados
 
-3. Gere e publique cada parte:
+```bash
+npx wrangler d1 create valtrea
+npx wrangler d1 migrations apply valtrea --remote --config apps/api/wrangler.jsonc
+```
 
-   ```bash
-   pnpm build
-   cd apps/ingest && npx wrangler deploy
-   cd ../api && npx wrangler deploy
-   cd ../web && npx wrangler deploy
-   ```
+### 2. Configurar integrações e segredos
+
+Substitua os valores de exemplo indicados em [`TROCAR-PARA-SEUS-DADOS.md`](./TROCAR-PARA-SEUS-DADOS.md) e registre as credenciais sensíveis como *secrets* da Cloudflare. Exemplo:
+
+```bash
+cd apps/api
+npx wrangler secret put SESSION_SECRET
+cd ../..
+```
+
+**Não envie** tokens, senhas, chaves de API ou arquivos `.env` com segredos ao GitHub.
+
+### 3. Compilar e implantar os serviços
+
+```bash
+pnpm build
+
+cd apps/ingest && npx wrangler deploy
+cd ../api && npx wrangler deploy
+cd ../web && npx wrangler deploy
+```
+
+A ordem e os nomes de serviços podem depender das configurações `wrangler` de cada aplicação. Confirme as ligações entre serviços e o banco D1 antes de implantar em produção.
+
+## Documentação
+
+- [`docs/decisions/`](./docs/decisions/) — decisões de arquitetura e justificativas técnicas.
+- [`TROCAR-PARA-SEUS-DADOS.md`](./TROCAR-PARA-SEUS-DADOS.md) — itens a personalizar antes da implantação.
+
+### Capturas de tela
+
+Para complementar o portfólio, vale incluir capturas reais da **home**, da **página de produtos** e de uma **visão do painel** (sem informações privadas). Sugestão de pasta: `docs/screenshots/`. Evite adicionar imagens inexistentes ao README.
+
+## Segurança e privacidade
+
+A coleta de visitas foi projetada para funcionar sem cookies. Isso **não substitui** uma avaliação jurídica ou técnica sobre tratamento de dados: revise quais eventos são coletados, seu armazenamento e a política de privacidade aplicável.
+
+O acesso administrativo e os serviços de terceiros dependem de credenciais configuradas fora do código-fonte. Antes de tornar o projeto público, confira também o **histórico de commits** para evitar exposição de segredos anteriormente versionados.
 
 ## Créditos
 
-- Ícones de marcas (HTML5, CSS, JavaScript, TypeScript, React, Node.js, Java, Kotlin, PostgreSQL, Vercel, WhatsApp, Instagram, TikTok, YouTube): [Simple Icons](https://simpleicons.org), licença CC0. As marcas pertencem aos seus donos.
-- Layout e comportamento de algumas seções inspirados em sites de referência; código, textos, ilustrações e marcas das demonstrações são próprios da Valtrea.
-- QR Code do Pix de teste: biblioteca `uqr`.
-- Fotos de objetos da página `/fundador` (MacBook, iPhone, AirPods, café): enviadas pelo dono do site, que responde pelo uso delas.
+- Ícones de marcas: [Simple Icons](https://simpleicons.org/), disponibilizados sob CC0; as marcas pertencem aos respectivos titulares.
+- Biblioteca `qrcode` utilizada na geração do QR Code de Pix de teste, conforme a documentação do projeto.
+- Fotografias e elementos visuais: consulte a origem e as permissões de uso registradas no projeto.
+- Algumas referências visuais foram utilizadas como inspiração; a implementação e os conteúdos próprios integram o projeto Valtrea.
+
+---
+
+**Valtrea** · [Site oficial](https://www.valtrea.com.br/)
