@@ -151,7 +151,7 @@ export const sitePt = {
     contactTitle: "Contato",
     nav: ["Início", "Serviços", "Como trabalhamos", "Processo", "Projetos", "Contato"],
     services: ["Páginas de venda", "Landing pages", "Sistemas web", "Aplicativos"],
-    more: ["Produtos", "Cartão de visita", "Todos os links"],
+    more: ["Produtos", "Cartão de visita", "Todos os links", "Status dos serviços"],
     moreTitle: "Mais",
     whatsapp: "WhatsApp",
     rights: "Valtrea · Rio de Janeiro/RJ",

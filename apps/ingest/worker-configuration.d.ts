@@ -6,6 +6,7 @@ interface __BaseEnv_Env {
 	EVENTS: AnalyticsEngineDataset;
 	APP_ORIGIN: "https://www.valtrea.com.br";
 	MAIL_FROM: "Valtrea <avisos@valtrea.com.br>";
+	ALERT_EMAIL: "contato@valtrea.com.br";
 	DAILY_SALT_SEED: string;
 	RESEND_API_KEY: string;
 }

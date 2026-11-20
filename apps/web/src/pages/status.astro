@@ -1,0 +1,88 @@
+---
+import SiteShell from "../components/site/SiteShell.astro";
+---
+
+<SiteShell
+  locale="pt"
+  path="/status"
+  otherLanguageHref="/en"
+  title="Status dos serviços | Valtrea"
+  description="Se os sites e as APIs da Valtrea estão no ar agora."
+  chat={false}
+  compactFooter
+>
+  <section class="container st-wrap" aria-labelledby="st-title">
+    <h1 id="st-title">Status dos serviços</h1>
+    <p class="st-lead" id="st-resumo" aria-live="polite">Carregando…</p>
+    <ul class="st-list" id="st-lista"></ul>
+    <p class="st-nota">
+      Os sites são verificados a cada 15 minutos. As APIs do Agora, do Pulso, do Volta e do Pay ficam num plano que
+      dorme quando não há uso, então são verificadas a cada 6 horas; a primeira visita do dia pode levar até 1 minuto
+      para responder. Problemas? Escreva para <a href="mailto:contato@valtrea.com.br">contato@valtrea.com.br</a>.
+    </p>
+  </section>
+</SiteShell>
+
+<script>
+  type Servico = { id: string; nome: string; frequencia: string; ok: number; ultima_verificacao: number; ultimo_ok: number | null; ms: number };
+
+  const lista = document.getElementById("st-lista")!;
+  const resumo = document.getElementById("st-resumo")!;
+  const tempo = (ms: number) => {
+    const min = Math.round((Date.now() - ms) / 60000);
+    if (min < 1) return "agora há pouco";
+    if (min < 60) return `há ${min} min`;
+    const h = Math.round(min / 60);
+    return h < 24 ? `há ${h} h` : `há ${Math.round(h / 24)} dia(s)`;
+  };
+
+  fetch("/api/status")
+    .then((r) => r.json() as Promise<{ servicos: Servico[] }>)
+    .then(({ servicos }) => {
+      if (!servicos.length) {
+        resumo.textContent = "Ainda não há verificações registradas.";
+        return;
+      }
+      const fora = servicos.filter((s) => !s.ok);
+      resumo.textContent = fora.length ? `${fora.length} serviço(s) com problema agora.` : "Tudo funcionando.";
+      resumo.dataset.estado = fora.length ? "fora" : "ok";
+      for (const s of servicos) {
+        const li = document.createElement("li");
+        li.className = "st-item";
+        li.dataset.estado = s.ok ? "ok" : "fora";
+        const nome = document.createElement("span");
+        nome.className = "st-nome";
+        nome.textContent = s.nome || s.id;
+        const estado = document.createElement("span");
+        estado.className = "st-estado";
+        estado.textContent = s.ok ? `No ar · ${s.ms} ms` : `Fora do ar${s.ultimo_ok ? ` · último ok ${tempo(s.ultimo_ok)}` : ""}`;
+        const quando = document.createElement("span");
+        quando.className = "st-quando";
+        quando.textContent = `verificado ${tempo(s.ultima_verificacao)}`;
+        li.append(nome, estado, quando);
+        lista.append(li);
+      }
+    })
+    .catch(() => {
+      resumo.textContent = "Não foi possível carregar o status agora.";
+    });
+</script>
+
+<style>
+  .st-wrap { max-width: 760px; padding-block: clamp(6rem, 12vw, 9rem) 4rem; }
+  .st-wrap h1 { font-family: var(--font-display); font-size: clamp(2rem, 5vw, 2.8rem); margin: 0 0 0.5rem; }
+  .st-lead { font-size: 1.1rem; color: var(--text-soft); margin: 0 0 1.5rem; }
+  .st-lead[data-estado="ok"] { color: var(--live); font-weight: 600; }
+  .st-lead[data-estado="fora"] { color: #b91c1c; font-weight: 600; }
+  .st-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+  .st-item {
+    display: grid; grid-template-columns: 1fr auto; gap: 0.15rem 1rem; padding: 0.9rem 1.1rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    border-left: 5px solid var(--live);
+  }
+  .st-item[data-estado="fora"] { border-left-color: #b91c1c; }
+  .st-nome { font-weight: 600; }
+  .st-estado { text-align: right; color: var(--text-soft); }
+  .st-quando { grid-column: 1 / -1; font-size: 0.85rem; color: var(--text-mute); }
+  .st-nota { margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-mute); }
+</style>
